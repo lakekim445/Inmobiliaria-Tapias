@@ -6,6 +6,9 @@ namespace InmobiliariaMVC.Controllers
     [Authorize(Roles = "Agente")]
     public class AgenteController : Controller
     {
-        public IActionResult Index() { return View(); }
+        public IActionResult Index()
+        {
+            return View();
+        }
     }
 }

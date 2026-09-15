@@ -4,9 +4,11 @@ using InmobiliariaMVC.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Base de datos
 builder.Services.AddDbContext<InmobiliariaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("InmobiliariaConnection")));
 
+// Autenticación por cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

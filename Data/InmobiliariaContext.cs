@@ -47,7 +47,6 @@ namespace InmobiliariaMVC.Data
                 entity.Property(u => u.Activo).HasColumnName("activo");
                 entity.Property(u => u.IdRol).HasColumnName("id_rol");
 
-                // Relación con Rol
                 entity.HasOne(u => u.Rol)
                     .WithMany(r => r.Usuarios)
                     .HasForeignKey(u => u.IdRol)

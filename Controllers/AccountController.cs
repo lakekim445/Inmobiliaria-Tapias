@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using InmobiliariaMVC.Data;
-using InmobiliariaMVC.Models;                        
+using InmobiliariaMVC.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +17,18 @@ namespace InmobiliariaMVC.Controllers
             _context = context;
         }
 
+        // ============================================================
+        // GET: /Account/Login
+        // ============================================================
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
+        // ============================================================
+        // POST: /Account/Login
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -33,12 +39,14 @@ namespace InmobiliariaMVC.Controllers
                 .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Email == model.Email && u.Activo);
 
-            if (usuario == null || !BCrypt.Net.BCrypt.Verify(model.Password, usuario.PasswordHash))
+            // Comparación directa en texto plano (SIN BCrypt)
+            if (usuario == null || usuario.PasswordHash != model.Password)
             {
                 ModelState.AddModelError("", "Email o contraseña incorrectos");
                 return View(model);
             }
 
+            // Crear los claims del usuario (van dentro de la cookie)
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
@@ -59,6 +67,7 @@ namespace InmobiliariaMVC.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
+            // Redirigir según el rol
             return usuario.Rol?.NombreRol switch
             {
                 "Admin" => RedirectToAction("Index", "Admin"),
@@ -68,6 +77,9 @@ namespace InmobiliariaMVC.Controllers
             };
         }
 
+        // ============================================================
+        // POST: /Account/Logout
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -76,6 +88,9 @@ namespace InmobiliariaMVC.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+        // ============================================================
+        // GET: /Account/AccesoDenegado
+        // ============================================================
         public IActionResult AccesoDenegado()
         {
             return View();

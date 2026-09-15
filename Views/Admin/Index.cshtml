@@ -2,22 +2,10 @@
     ViewData["Title"] = "Panel Admin";
 }
 
-<div class="container-main">
+<div class="container mt-4">
     <h1>Panel de Administrador</h1>
-    <p class="lead">Bienvenido, <strong>@User.Identity?.Name</strong></p>
-
-    <div class="card">
-        <div class="card-title">Información de Sesión</div>
-        <div class="card-text">
-            <p>
-                <strong>Rol:</strong>
-                <span class="badge-disponible">
-                    @User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value
-                </span>
-            </p>
-            <p><strong>Email:</strong> @User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value</p>
-        </div>
-    </div>
+    <p>Bienvenido, <strong>@User.Identity?.Name</strong></p>
+    <p>Rol: <strong>@User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
 
     <form asp-controller="Account" asp-action="Logout" method="post">
         <button type="submit" class="btn btn-primary">Cerrar Sesión</button>
