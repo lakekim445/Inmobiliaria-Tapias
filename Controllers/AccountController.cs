@@ -17,18 +17,13 @@ namespace InmobiliariaMVC.Controllers
             _context = context;
         }
 
-        // ============================================================
-        // GET: /Account/Login
-        // ============================================================
+
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-        // ============================================================
-        // POST: /Account/Login
-        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -39,14 +34,13 @@ namespace InmobiliariaMVC.Controllers
                 .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Email == model.Email && u.Activo);
 
-            // Comparación directa en texto plano (sin BCrypt)
             if (usuario == null || usuario.PasswordHash != model.Password)
             {
                 ModelState.AddModelError("", "Email o contraseña incorrectos");
                 return View(model);
             }
 
-            // Crear los claims del usuario
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
@@ -67,7 +61,7 @@ namespace InmobiliariaMVC.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            // Redirigir según el rol
+
             return usuario.Rol?.NombreRol switch
             {
                 "Admin" => RedirectToAction("Index", "Admin"),
@@ -77,25 +71,19 @@ namespace InmobiliariaMVC.Controllers
             };
         }
 
-        // ============================================================
-        // GET: /Account/Register
-        // ============================================================
+
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // ============================================================
-        // POST: /Account/Register
-        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            // Verificar si el email ya existe
             var emailExiste = await _context.Usuarios.AnyAsync(u => u.Email == model.Email);
             if (emailExiste)
             {
@@ -103,29 +91,27 @@ namespace InmobiliariaMVC.Controllers
                 return View(model);
             }
 
-            // Crear el nuevo usuario (rol Cliente = 3)
+     
             var nuevoUsuario = new Usuario
             {
                 NombreCompleto = model.NombreCompleto,
                 Email = model.Email,
-                PasswordHash = model.Password,   // texto plano (sin hash)
+                PasswordHash = model.Password,   
                 Telefono = model.Telefono,
-                FechaRegistro = DateTime.Now,
+                FechaRegistro = DateTime.UtcNow,
                 Activo = true,
-                IdRol = 3                        // 3 = Cliente
+                IdRol = 3                       
             };
 
             _context.Usuarios.Add(nuevoUsuario);
             await _context.SaveChangesAsync();
 
-            // Redirigir al login con mensaje de éxito
+        
             TempData["MensajeExito"] = "¡Registro exitoso! Ahora puedes iniciar sesión.";
             return RedirectToAction("Login");
         }
 
-        // ============================================================
-        // POST: /Account/Logout
-        // ============================================================
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -134,9 +120,7 @@ namespace InmobiliariaMVC.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        // ============================================================
-        // GET: /Account/AccesoDenegado
-        // ============================================================
+
         public IActionResult AccesoDenegado()
         {
             return View();
