@@ -1,7 +1,7 @@
-﻿@model InmobiliariaMVC.Models.LoginViewModel
+﻿@model InmobiliariaMVC.Models.RegisterViewModel
 
 @{
-    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["Title"] = "Registrarse";
     Layout = null;
 }
 
@@ -10,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Tapia's Solution</title>
+    <title>Registro - Tapia's Solution</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
@@ -35,19 +35,20 @@
                 justify-content: center;
                 font-family: 'Nunito Sans', sans-serif;
                 margin: 0;
+                padding: 20px 0;
             }
 
-            .login-card {
+            .register-card {
                 background: var(--warm-ivory);
                 border-radius: 16px;
-                padding: 45px 40px;
+                padding: 40px;
                 width: 100%;
-                max-width: 420px;
+                max-width: 500px;
                 box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
                 border: 2px solid var(--warm-taupe);
             }
 
-                .login-card h2 {
+                .register-card h2 {
                     font-family: 'Playfair Display', serif;
                     color: var(--walnut-brown);
                     text-align: center;
@@ -56,10 +57,10 @@
                     font-size: 2rem;
                 }
 
-            .login-subtitle {
+            .register-subtitle {
                 text-align: center;
                 color: var(--olive-green);
-                margin-bottom: 30px;
+                margin-bottom: 25px;
                 font-size: 0.95rem;
                 font-weight: 600;
             }
@@ -83,7 +84,7 @@
                     box-shadow: 0 0 0 0.2rem rgba(193, 81, 47, 0.15);
                 }
 
-            .btn-login {
+            .btn-register {
                 background-color: var(--terracotta);
                 color: white;
                 width: 100%;
@@ -95,54 +96,42 @@
                 transition: background-color 0.3s;
             }
 
-                .btn-login:hover {
+                .btn-register:hover {
                     background-color: var(--walnut-brown);
                     color: white;
                 }
 
-            .link-register {
+            .link-login {
                 text-align: center;
                 margin-top: 20px;
                 font-size: 0.9rem;
                 color: var(--walnut-brown);
             }
 
-                .link-register a {
+                .link-login a {
                     color: var(--terracotta);
                     font-weight: 700;
                     text-decoration: none;
                 }
 
-                    .link-register a:hover {
+                    .link-login a:hover {
                         text-decoration: underline;
                     }
-
-            .alert-success-custom {
-                background-color: var(--olive-green);
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 10px;
-                margin-bottom: 15px;
-                text-align: center;
-                font-size: 0.9rem;
-            }
     </style>
 </head>
 <body>
-    <div class="login-card">
+    <div class="register-card">
         <h2>Tapia's Solution</h2>
-        <p class="login-subtitle">Portal Inmobiliario</p>
+        <p class="register-subtitle">Crear Cuenta de Cliente</p>
 
-        @if (TempData["MensajeExito"] != null)
-        {
-            <div class="alert-success-custom">
-                @TempData["MensajeExito"]
-            </div>
-        }
-
-        <form asp-action="Login" method="post">
+        <form asp-action="Register" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="NombreCompleto" class="form-label">Nombre Completo</label>
+                <input asp-for="NombreCompleto" class="form-control" placeholder="Juan Pérez" />
+                <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+            </div>
 
             <div class="mb-3">
                 <label asp-for="Email" class="form-label">Correo Electrónico</label>
@@ -151,22 +140,28 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="Telefono" class="form-label">Teléfono</label>
+                <input asp-for="Telefono" class="form-control" placeholder="70012345" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="Password" class="form-label">Contraseña</label>
                 <input asp-for="Password" type="password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
-            <div class="mb-3 form-check">
-                <input asp-for="Recordarme" class="form-check-input" />
-                <label asp-for="Recordarme" class="form-check-label">Recordarme</label>
+            <div class="mb-3">
+                <label asp-for="ConfirmarPassword" class="form-label">Confirmar Contraseña</label>
+                <input asp-for="ConfirmarPassword" type="password" class="form-control" />
+                <span asp-validation-for="ConfirmarPassword" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-login">Iniciar Sesión</button>
+            <button type="submit" class="btn btn-register">Registrarse</button>
         </form>
 
-        <div class="link-register">
-            ¿No tienes cuenta?
-            <a asp-action="Register">Regístrate aquí</a>
+        <div class="link-login">
+            ¿Ya tienes cuenta? <a asp-action="Login">Inicia sesión aquí</a>
         </div>
     </div>
 </body>

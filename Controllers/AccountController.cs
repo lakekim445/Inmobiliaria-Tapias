@@ -39,14 +39,14 @@ namespace InmobiliariaMVC.Controllers
                 .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Email == model.Email && u.Activo);
 
-            // Comparación directa en texto plano (SIN BCrypt)
+            // Comparación directa en texto plano (sin BCrypt)
             if (usuario == null || usuario.PasswordHash != model.Password)
             {
                 ModelState.AddModelError("", "Email o contraseña incorrectos");
                 return View(model);
             }
 
-            // Crear los claims del usuario (van dentro de la cookie)
+            // Crear los claims del usuario
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
@@ -75,6 +75,52 @@ namespace InmobiliariaMVC.Controllers
                 "Cliente" => RedirectToAction("Index", "Cliente"),
                 _ => RedirectToAction("Index", "Home")
             };
+        }
+
+        // ============================================================
+        // GET: /Account/Register
+        // ============================================================
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // ============================================================
+        // POST: /Account/Register
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            // Verificar si el email ya existe
+            var emailExiste = await _context.Usuarios.AnyAsync(u => u.Email == model.Email);
+            if (emailExiste)
+            {
+                ModelState.AddModelError("Email", "Este email ya está registrado");
+                return View(model);
+            }
+
+            // Crear el nuevo usuario (rol Cliente = 3)
+            var nuevoUsuario = new Usuario
+            {
+                NombreCompleto = model.NombreCompleto,
+                Email = model.Email,
+                PasswordHash = model.Password,   // texto plano (sin hash)
+                Telefono = model.Telefono,
+                FechaRegistro = DateTime.Now,
+                Activo = true,
+                IdRol = 3                        // 3 = Cliente
+            };
+
+            _context.Usuarios.Add(nuevoUsuario);
+            await _context.SaveChangesAsync();
+
+            // Redirigir al login con mensaje de éxito
+            TempData["MensajeExito"] = "¡Registro exitoso! Ahora puedes iniciar sesión.";
+            return RedirectToAction("Login");
         }
 
         // ============================================================
