@@ -1,0 +1,134 @@
+﻿@model InmobiliariaMVC.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Tapia's Solution</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <style>
+            :root {
+                --warm-ivory: #F2EBDD;
+                --walnut-brown: #3E2A1E;
+                --olive-green: #6B6B43;
+                --warm-taupe: #B3A48F;
+                --terracotta: #C1512F;
+            }
+
+            body {
+                background: linear-gradient(135deg, #3E2A1E 0%, #C1512F 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Nunito Sans', sans-serif;
+                margin: 0;
+            }
+
+            .login-card {
+                background: var(--warm-ivory);
+                border-radius: 16px;
+                padding: 45px 40px;
+                width: 100%;
+                max-width: 420px;
+                box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+                border: 2px solid var(--warm-taupe);
+            }
+
+                .login-card h2 {
+                    font-family: 'Playfair Display', serif;
+                    color: var(--walnut-brown);
+                    text-align: center;
+                    margin-bottom: 10px;
+                    font-weight: 700;
+                    font-size: 2rem;
+                }
+
+            .login-subtitle {
+                text-align: center;
+                color: var(--olive-green);
+                margin-bottom: 30px;
+                font-size: 0.95rem;
+                font-weight: 600;
+            }
+
+            .form-label {
+                color: var(--walnut-brown);
+                font-weight: 600;
+            }
+
+            .form-control {
+                border: 1px solid var(--warm-taupe);
+                border-radius: 8px;
+                padding: 10px 14px;
+                font-family: 'Nunito Sans', sans-serif;
+                background: #FFFFFF;
+                color: var(--walnut-brown);
+            }
+
+                .form-control:focus {
+                    border-color: var(--terracotta);
+                    box-shadow: 0 0 0 0.2rem rgba(193, 81, 47, 0.15);
+                }
+
+            .btn-login {
+                background-color: var(--terracotta);
+                color: white;
+                width: 100%;
+                padding: 12px;
+                border: none;
+                border-radius: 8px;
+                font-weight: 700;
+                font-size: 1rem;
+                transition: background-color 0.3s;
+            }
+
+                .btn-login:hover {
+                    background-color: var(--walnut-brown);
+                    color: white;
+                }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Tapia's Solution</h2>
+        <p class="login-subtitle">Portal Inmobiliario</p>
+
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">Correo Electrónico</label>
+                <input asp-for="Email" class="form-control" placeholder="correo@ejemplo.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Contraseña</label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="Recordarme" class="form-check-input" />
+                <label asp-for="Recordarme" class="form-check-label">Recordarme</label>
+            </div>
+
+            <button type="submit" class="btn btn-login">Iniciar Sesión</button>
+        </form>
+    </div>
+</body>
+</html>

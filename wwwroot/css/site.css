@@ -1,22 +1,297 @@
-html {
-  font-size: 14px;
+/* ============================================================
+   TAPIA'S SOLUTION - ESTILOS GLOBALES
+   ============================================================ */
+
+/* Variables de colores y tipografía */
+:root {
+    --warm-ivory: #F2EBDD;
+    --walnut-brown: #3E2A1E;
+    --olive-green: #6B6B43;
+    --warm-taupe: #B3A48F;
+    --terracotta: #C1512F;
+    --white: #FFFFFF;
+    --black: #0F0F0F;
+    --font-titles: 'Playfair Display', serif;
+    --font-body: 'Nunito Sans', sans-serif;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+/* Reset básico */
+* {
+    box-sizing: border-box;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+html, body {
+    font-family: var(--font-body);
+    background-color: var(--warm-ivory);
+    color: var(--walnut-brown);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+/* ============================================================
+   TIPOGRAFÍA
+   ============================================================ */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-titles);
+    color: var(--walnut-brown);
+    font-weight: 700;
 }
 
-body {
-  margin-bottom: 60px;
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
 }
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.6rem;
+}
+
+p, span, label, li, a {
+    font-family: var(--font-body);
+    color: var(--walnut-brown);
+    line-height: 1.6;
+}
+
+/* ============================================================
+   NAVBAR (encabezado)
+   ============================================================ */
+.navbar {
+    background-color: var(--walnut-brown) !important;
+    padding: 1rem 2rem;
+    border-bottom: 3px solid var(--terracotta);
+}
+
+.navbar-brand {
+    font-family: var(--font-titles);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--warm-ivory) !important;
+    letter-spacing: 0.5px;
+}
+
+    .navbar-brand:hover {
+        color: var(--terracotta) !important;
+    }
+
+.navbar .nav-link {
+    color: var(--warm-ivory) !important;
+    font-weight: 600;
+    margin-left: 1rem;
+    transition: color 0.3s;
+}
+
+    .navbar .nav-link:hover {
+        color: var(--terracotta) !important;
+    }
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.btn-primary {
+    background-color: var(--terracotta);
+    border-color: var(--terracotta);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+    .btn-primary:hover {
+        background-color: var(--walnut-brown);
+        border-color: var(--walnut-brown);
+        color: var(--white);
+    }
+
+.btn-secondary {
+    background-color: var(--olive-green);
+    border-color: var(--olive-green);
+    color: var(--white);
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+}
+
+    .btn-secondary:hover {
+        background-color: var(--walnut-brown);
+        border-color: var(--walnut-brown);
+    }
+
+.btn-outline-primary {
+    color: var(--terracotta);
+    border-color: var(--terracotta);
+    font-weight: 600;
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--terracotta);
+        color: var(--white);
+    }
+
+/* ============================================================
+   TARJETAS / CONTENEDORES
+   ============================================================ */
+.card {
+    background-color: var(--white);
+    border: 1px solid var(--warm-taupe);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(62, 42, 30, 0.08);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-title {
+    font-family: var(--font-titles);
+    color: var(--walnut-brown);
+    font-weight: 700;
+}
+
+.card-text {
+    color: var(--walnut-brown);
+}
+
+/* ============================================================
+   FORMULARIOS
+   ============================================================ */
+.form-control {
+    font-family: var(--font-body);
+    border: 1px solid var(--warm-taupe);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    background-color: var(--white);
+    color: var(--walnut-brown);
+}
+
+    .form-control:focus {
+        border-color: var(--terracotta);
+        box-shadow: 0 0 0 0.2rem rgba(193, 81, 47, 0.15);
+    }
+
+.form-label {
+    font-weight: 600;
+    color: var(--walnut-brown);
+    margin-bottom: 0.4rem;
+}
+
+/* ============================================================
+   TABLAS
+   ============================================================ */
+.table {
+    background-color: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+    .table thead {
+        background-color: var(--walnut-brown);
+        color: var(--warm-ivory);
+    }
+
+        .table thead th {
+            font-family: var(--font-body);
+            font-weight: 700;
+            border: none;
+            padding: 1rem;
+        }
+
+    .table tbody td {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid var(--warm-taupe);
+        color: var(--walnut-brown);
+    }
+
+    .table tbody tr:hover {
+        background-color: var(--warm-ivory);
+    }
+
+/* ============================================================
+   BADGES / ETIQUETAS DE ESTADO
+   ============================================================ */
+.badge-disponible {
+    background-color: var(--olive-green);
+    color: var(--white);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.badge-reservado {
+    background-color: var(--terracotta);
+    color: var(--white);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.badge-vendido {
+    background-color: var(--walnut-brown);
+    color: var(--white);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+    background-color: var(--walnut-brown);
+    color: var(--warm-ivory);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    margin-top: 3rem;
+    border-top: 3px solid var(--terracotta);
+}
+
+    .footer a {
+        color: var(--terracotta);
+        text-decoration: none;
+    }
+
+        .footer a:hover {
+            color: var(--warm-ivory);
+        }
+
+/* ============================================================
+   CONTENEDOR PRINCIPAL
+   ============================================================ */
+.container-main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+/* ============================================================
+   VALIDACIONES
+   ============================================================ */
+.text-danger {
+    color: var(--terracotta) !important;
+    font-size: 0.9rem;
+}
+
+.field-validation-error {
+    color: var(--terracotta);
+    font-size: 0.9rem;
+}
+
+/* ============================================================
+   LINKS
+   ============================================================ */
+a {
+    color: var(--terracotta);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+    a:hover {
+        color: var(--olive-green);
+        text-decoration: underline;
+    }

@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Panel Agente";
+}
+
+<div class="container-main">
+    <h1>Panel de Agente</h1>
+    <p class="lead">Bienvenido, <strong>@User.Identity?.Name</strong></p>
+
+    <div class="card">
+        <div class="card-title">Información de Sesión</div>
+        <div class="card-text">
+            <p>
+                <strong>Rol:</strong>
+                <span class="badge-reservado">
+                    @User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value
+                </span>
+            </p>
+            <p><strong>Email:</strong> @User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value</p>
+        </div>
+    </div>
+
+    <form asp-controller="Account" asp-action="Logout" method="post">
+        <button type="submit" class="btn btn-primary">Cerrar Sesión</button>
+    </form>
+</div>
