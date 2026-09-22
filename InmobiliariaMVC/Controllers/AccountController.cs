@@ -16,27 +16,20 @@ namespace InmobiliariaMVC.Controllers
             _apiService = apiService;
         }
 
-        // ============================================================
-        // GET: /Account/Login
-        // ============================================================
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-        // ============================================================
-        // POST: /Account/Login
-        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            // Llamar a la API
             var respuesta = await _apiService.PostAsync<LoginResponseDTO>(
-                "auth/login",
+                "api/AuthApi/login",
                 new { Email = model.Email, Password = model.Password });
 
             if (respuesta == null || string.IsNullOrEmpty(respuesta.Token))
@@ -45,12 +38,10 @@ namespace InmobiliariaMVC.Controllers
                 return View(model);
             }
 
-            // Guardar el JWT en sesión
             HttpContext.Session.SetString("JWT", respuesta.Token);
             HttpContext.Session.SetString("NombreCompleto", respuesta.NombreCompleto);
             HttpContext.Session.SetString("Rol", respuesta.Rol);
 
-            // Crear los claims para la cookie
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, respuesta.NombreCompleto),
@@ -72,7 +63,6 @@ namespace InmobiliariaMVC.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            // Redirigir según el rol
             return respuesta.Rol switch
             {
                 "Admin" => RedirectToAction("Index", "Admin"),
@@ -82,27 +72,20 @@ namespace InmobiliariaMVC.Controllers
             };
         }
 
-        // ============================================================
-        // GET: /Account/Register
-        // ============================================================
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // ============================================================
-        // POST: /Account/Register
-        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            // Llamar a la API para registrar
             var resultado = await _apiService.PostAsync<LoginResponseDTO>(
-                "auth/register",
+                "api/AuthApi/register",
                 new
                 {
                     NombreCompleto = model.NombreCompleto,
@@ -121,9 +104,6 @@ namespace InmobiliariaMVC.Controllers
             return RedirectToAction("Login");
         }
 
-        // ============================================================
-        // POST: /Account/Logout
-        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -133,9 +113,6 @@ namespace InmobiliariaMVC.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        // ============================================================
-        // GET: /Account/AccesoDenegado
-        // ============================================================
         public IActionResult AccesoDenegado()
         {
             return View();
