@@ -31,12 +31,19 @@ namespace InmobiliariaMVC.Controllers
             var respuesta = await _apiService.PostAsync<LoginResponseDTO>(
                 "api/AuthApi/login",
                 new { Email = model.Email, Password = model.Password });
-
-            if (respuesta == null || string.IsNullOrEmpty(respuesta.Token))
+            if (respuesta == null)
             {
-                ModelState.AddModelError("", "Email o contraseña incorrectos");
+                ModelState.AddModelError("", "❌ DEBUG: La API no devolvió nada (respuesta == null)");
                 return View(model);
             }
+
+            if (string.IsNullOrEmpty(respuesta.Token))
+            {
+                ModelState.AddModelError("", $"❌ DEBUG: Token vacío. Rol: {respuesta.Rol ?? "null"}");
+                return View(model);
+            }
+
+
 
             HttpContext.Session.SetString("JWT", respuesta.Token);
             HttpContext.Session.SetString("NombreCompleto", respuesta.NombreCompleto);
