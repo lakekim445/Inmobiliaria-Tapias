@@ -1,14 +1,26 @@
+using InmobiliariaMVC.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
-using InmobiliariaMVC.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Base de datos
-builder.Services.AddDbContext<InmobiliariaContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("InmobiliariaConnection")));
+builder.Services.AddControllersWithViews();
 
-// Autenticación por cookies
+builder.Services.AddHttpClient("InmobiliariaAPI", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7225/");
+});
+
+builder.Services.AddScoped<ApiService>();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -19,7 +31,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -33,6 +45,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 

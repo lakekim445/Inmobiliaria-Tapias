@@ -1,55 +1,66 @@
 ﻿using System.Security.Claims;
-using InmobiliariaMVC.Data;
 using InmobiliariaMVC.Models;
+using InmobiliariaMVC.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace InmobiliariaMVC.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly InmobiliariaContext _context;
+        private readonly ApiService _apiService;
 
-        public AccountController(InmobiliariaContext context)
+        public AccountController(ApiService apiService)
         {
-            _context = context;
+            _apiService = apiService;
         }
 
-
+        // ============================================================
+        // GET: /Account/Login
+        // ============================================================
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
+        // ============================================================
+        // POST: /Account/Login
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            var usuario = await _context.Usuarios
-                .Include(u => u.Rol)
-                .FirstOrDefaultAsync(u => u.Email == model.Email && u.Activo);
+            // Llamar a la API
+            var respuesta = await _apiService.PostAsync<LoginResponseDTO>(
+                "auth/login",
+                new { Email = model.Email, Password = model.Password });
 
-            if (usuario == null || usuario.PasswordHash != model.Password)
+            if (respuesta == null || string.IsNullOrEmpty(respuesta.Token))
             {
                 ModelState.AddModelError("", "Email o contraseña incorrectos");
                 return View(model);
             }
 
+            // Guardar el JWT en sesión
+            HttpContext.Session.SetString("JWT", respuesta.Token);
+            HttpContext.Session.SetString("NombreCompleto", respuesta.NombreCompleto);
+            HttpContext.Session.SetString("Rol", respuesta.Rol);
 
+            // Crear los claims para la cookie
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuario.NombreCompleto ?? ""),
-                new Claim(ClaimTypes.Email, usuario.Email ?? ""),
-                new Claim(ClaimTypes.Role, usuario.Rol?.NombreRol ?? "")
+                new Claim(ClaimTypes.Name, respuesta.NombreCompleto),
+                new Claim(ClaimTypes.Email, respuesta.Email),
+                new Claim(ClaimTypes.Role, respuesta.Rol)
             };
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = model.Recordarme,
@@ -61,8 +72,8 @@ namespace InmobiliariaMVC.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-
-            return usuario.Rol?.NombreRol switch
+            // Redirigir según el rol
+            return respuesta.Rol switch
             {
                 "Admin" => RedirectToAction("Index", "Admin"),
                 "Agente" => RedirectToAction("Index", "Agente"),
@@ -71,56 +82,60 @@ namespace InmobiliariaMVC.Controllers
             };
         }
 
-
+        // ============================================================
+        // GET: /Account/Register
+        // ============================================================
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
+        // ============================================================
+        // POST: /Account/Register
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            var emailExiste = await _context.Usuarios.AnyAsync(u => u.Email == model.Email);
-            if (emailExiste)
+            // Llamar a la API para registrar
+            var resultado = await _apiService.PostAsync<LoginResponseDTO>(
+                "auth/register",
+                new
+                {
+                    NombreCompleto = model.NombreCompleto,
+                    Email = model.Email,
+                    Telefono = model.Telefono,
+                    Password = model.Password
+                });
+
+            if (resultado == null)
             {
-                ModelState.AddModelError("Email", "Este email ya está registrado");
+                ModelState.AddModelError("", "Error al registrar. Intenta de nuevo.");
                 return View(model);
             }
 
-     
-            var nuevoUsuario = new Usuario
-            {
-                NombreCompleto = model.NombreCompleto,
-                Email = model.Email,
-                PasswordHash = model.Password,   
-                Telefono = model.Telefono,
-                FechaRegistro = DateTime.UtcNow,
-                Activo = true,
-                IdRol = 3                       
-            };
-
-            _context.Usuarios.Add(nuevoUsuario);
-            await _context.SaveChangesAsync();
-
-        
             TempData["MensajeExito"] = "¡Registro exitoso! Ahora puedes iniciar sesión.";
             return RedirectToAction("Login");
         }
 
-
+        // ============================================================
+        // POST: /Account/Logout
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            HttpContext.Session.Clear();
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
         }
 
-
+        // ============================================================
+        // GET: /Account/AccesoDenegado
+        // ============================================================
         public IActionResult AccesoDenegado()
         {
             return View();
