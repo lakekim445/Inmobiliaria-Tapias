@@ -26,6 +26,104 @@ namespace InmobiliariaMVC.Controllers
             return View(agentes ?? new List<AgenteResumenDTO>());
         }
 
+        public async Task<IActionResult> DetalleAgente(int id)
+        {
+            var agente = await _apiService.GetAsync<AgenteDetalleDTO>($"api/AdminApi/agentes/{id}");
+            if (agente == null) return NotFound();
+            return View(agente);
+        }
+
+        [HttpGet]
+        public IActionResult CrearAgente()
+        {
+            return View(new AgenteCreateViewModel());
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearAgente(AgenteCreateViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var resultado = await _apiService.PostAsync<object>(
+                "api/AdminApi/agentes",
+                new
+                {
+                    NombreCompleto = model.NombreCompleto,
+                    Email = model.Email,
+                    Telefono = model.Telefono,
+                    Password = model.Password
+                });
+
+            if (resultado == null)
+            {
+                ModelState.AddModelError("", "Error al crear el agente. Verifica que el email no esté en uso.");
+                return View(model);
+            }
+
+            TempData["MensajeExito"] = "Agente creado exitosamente";
+            return RedirectToAction("Agentes");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditarAgente(int id)
+        {
+            var agente = await _apiService.GetAsync<AgenteDetalleDTO>($"api/AdminApi/agentes/{id}");
+            if (agente == null) return NotFound();
+
+            var model = new AgenteUpdateViewModel
+            {
+                Id = agente.Id,
+                NombreCompleto = agente.NombreCompleto,
+                Email = agente.Email,
+                Telefono = agente.Telefono,
+                Activo = agente.Activo
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarAgente(AgenteUpdateViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var resultado = await _apiService.PutAsync(
+                $"api/AdminApi/agentes/{model.Id}",
+                new
+                {
+                    NombreCompleto = model.NombreCompleto,
+                    Email = model.Email,
+                    Telefono = model.Telefono,
+                    Activo = model.Activo
+                });
+
+            if (!resultado)
+            {
+                ModelState.AddModelError("", "Error al actualizar el agente.");
+                return View(model);
+            }
+
+            TempData["MensajeExito"] = "Agente actualizado exitosamente";
+            return RedirectToAction("Agentes");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarAgente(int id)
+        {
+            var resultado = await _apiService.DeleteAsync($"api/AdminApi/agentes/{id}");
+
+            if (resultado)
+                TempData["MensajeExito"] = "Agente eliminado exitosamente";
+            else
+                TempData["MensajeError"] = "Error al eliminar. Puede tener propiedades asignadas.";
+
+            return RedirectToAction("Agentes");
+        }
+
         public async Task<IActionResult> Propiedades()
         {
             var propiedades = await _apiService.GetAsync<List<PropiedadResumenDTO>>("api/AdminApi/propiedades");
