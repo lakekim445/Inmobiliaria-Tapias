@@ -321,15 +321,21 @@ p, span, label, li, a {
     border-top: 3px solid var(--terracotta);
 }
 
+    .footer p,
+    .footer span,
     .footer a {
-        color: var(--terracotta);
+        color: var(--warm-ivory) !important; /* ← IMPORTANTE: forzar color claro */
+        margin: 0;
+    }
+
+    .footer a {
         text-decoration: none;
+        transition: color 0.3s;
     }
 
         .footer a:hover {
-            color: var(--warm-ivory);
+            color: var(--terracotta) !important;
         }
-
 
 /* ============================================================
    CONTENEDOR PRINCIPAL
