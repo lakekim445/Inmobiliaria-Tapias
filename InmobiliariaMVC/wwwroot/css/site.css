@@ -778,3 +778,136 @@ a {
         padding: 2rem 1.5rem;
     }
 }
+
+/* ============================================================
+   ADMIN - BOTONES DE ACCIÓN
+   ============================================================ */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #B3A48F;
+    background-color: #FFFFFF;
+    color: #3E2A1E;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+    .btn-action:hover {
+        background-color: #C1512F;
+        border-color: #C1512F;
+        color: #FFFFFF;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(193, 81, 47, 0.3);
+    }
+
+.btn-action-danger:hover {
+    background-color: #B93B1D;
+    border-color: #B93B1D;
+}
+
+.badge-count {
+    display: inline-block;
+    background-color: #F2EBDD;
+    color: #3E2A1E;
+    padding: 0.25rem 0.7rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 1px solid #B3A48F;
+}
+
+/* ============================================================
+   ADMIN - FORMULARIOS
+   ============================================================ */
+.form-card {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+    .form-card .form-label {
+        font-weight: 600;
+        color: #3E2A1E;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .form-card .form-control {
+        border: 1px solid #B3A48F;
+        border-radius: 8px;
+        padding: 0.7rem 1rem;
+    }
+
+        .form-card .form-control:focus {
+            border-color: #C1512F;
+            box-shadow: 0 0 0 0.2rem rgba(193, 81, 47, 0.15);
+        }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.7rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #B3A48F;
+}
+
+/* ============================================================
+   ADMIN - ALERTAS
+   ============================================================ */
+.alert-success-custom {
+    background-color: #6B6B43;
+    color: #FFFFFF;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-error-custom {
+    background-color: #C1512F;
+    color: #FFFFFF;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ============================================================
+   ADMIN - DETALLE
+   ============================================================ */
+.detail-row {
+    display: flex;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid #E5DCC9;
+}
+
+    .detail-row:last-of-type {
+        border-bottom: none;
+    }
+
+.detail-label {
+    flex: 0 0 200px;
+    font-weight: 600;
+    color: #6B6B43;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.detail-value {
+    flex: 1;
+    color: #3E2A1E;
+    font-weight: 500;
+}

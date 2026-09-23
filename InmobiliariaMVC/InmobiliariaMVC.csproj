@@ -1,10 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Admin\CrearAgente.cshtml" />
+    <Content Remove="Views\Admin\DetalleAgente.cshtml" />
+    <Content Remove="Views\Admin\EditarAgente.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Views\Admin\CrearAgente.cshtml" />
+    <Compile Include="Views\Admin\DetalleAgente.cshtml" />
+    <Compile Include="Views\Admin\EditarAgente.cshtml" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
