@@ -7,13 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Views\Admin\CrearAgente.cshtml" />
     <Content Remove="Views\Admin\DetalleAgente.cshtml" />
     <Content Remove="Views\Admin\EditarAgente.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Views\Admin\CrearAgente.cshtml" />
     <Compile Include="Views\Admin\DetalleAgente.cshtml" />
     <Compile Include="Views\Admin\EditarAgente.cshtml" />
   </ItemGroup>
