@@ -27,18 +27,23 @@
 }
 
 html, body {
+    height: 100%;
+}
+
+body {
     font-family: var(--font-body);
     background-color: var(--warm-ivory);
     color: var(--walnut-brown);
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-body {
-    padding-bottom: 100px;
+main {
+    flex: 1 0 auto;
 }
-
 
 /* ============================================================
    TIPOGRAFÍA
@@ -333,12 +338,8 @@ a {
     padding: 1.5rem 2rem;
     text-align: center;
     border-top: 3px solid #C1512F;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    flex-shrink: 0;
     width: 100%;
-    z-index: 100;
 }
 
     .footer p {
