@@ -19,9 +19,6 @@ namespace InmobiliariaAPI.Controllers
             _context = context;
         }
 
-        // ============================================================
-        // GET: /api/admin/dashboard
-        // ============================================================
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetDashboard()
         {
@@ -64,9 +61,6 @@ namespace InmobiliariaAPI.Controllers
             return Ok(dto);
         }
 
-        // ============================================================
-        // GET: /api/admin/agentes
-        // ============================================================
         [HttpGet("agentes")]
         public async Task<IActionResult> GetAgentes()
         {
@@ -103,9 +97,103 @@ namespace InmobiliariaAPI.Controllers
             return Ok(resultado);
         }
 
-        // ============================================================
-        // GET: /api/admin/propiedades
-        // ============================================================
+        [HttpGet("agentes/{id}")]
+        public async Task<IActionResult> GetAgente(int id)
+        {
+            var agente = await _context.Usuarios
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u => u.Id == id && u.IdRol == 2);
+
+            if (agente == null) return NotFound();
+
+            return Ok(new AgenteDetalleDTO
+            {
+                Id = agente.Id,
+                NombreCompleto = agente.NombreCompleto ?? "",
+                Email = agente.Email ?? "",
+                Telefono = agente.Telefono ?? "",
+                Activo = agente.Activo,
+                FechaRegistro = agente.FechaRegistro,
+                NombreRol = agente.Rol?.NombreRol ?? ""
+            });
+        }
+
+        [HttpPost("agentes")]
+        public async Task<IActionResult> CrearAgente([FromBody] AgenteCreateDTO dto)
+        {
+            if (string.IsNullOrEmpty(dto.NombreCompleto) ||
+                string.IsNullOrEmpty(dto.Email) ||
+                string.IsNullOrEmpty(dto.Password))
+            {
+                return BadRequest(new { mensaje = "Todos los campos son obligatorios" });
+            }
+
+            var emailExiste = await _context.Usuarios.AnyAsync(u => u.Email == dto.Email);
+            if (emailExiste)
+                return BadRequest(new { mensaje = "El email ya está registrado" });
+
+            var nuevoAgente = new Usuario
+            {
+                NombreCompleto = dto.NombreCompleto,
+                Email = dto.Email,
+                PasswordHash = dto.Password,
+                Telefono = dto.Telefono,
+                FechaRegistro = DateTime.UtcNow,
+                Activo = true,
+                IdRol = 2
+            };
+
+            _context.Usuarios.Add(nuevoAgente);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                mensaje = "Agente creado exitosamente",
+                id = nuevoAgente.Id
+            });
+        }
+
+
+        [HttpPut("agentes/{id}")]
+        public async Task<IActionResult> EditarAgente(int id, [FromBody] AgenteUpdateDTO dto)
+        {
+            var agente = await _context.Usuarios.FindAsync(id);
+            if (agente == null) return NotFound();
+            if (agente.IdRol != 2) return BadRequest(new { mensaje = "El usuario no es un agente" });
+
+            var emailEnUso = await _context.Usuarios
+                .AnyAsync(u => u.Email == dto.Email && u.Id != id);
+
+            if (emailEnUso)
+                return BadRequest(new { mensaje = "El email ya está en uso por otro usuario" });
+
+            agente.NombreCompleto = dto.NombreCompleto;
+            agente.Email = dto.Email;
+            agente.Telefono = dto.Telefono;
+            agente.Activo = dto.Activo;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Agente actualizado exitosamente" });
+        }
+
+        [HttpDelete("agentes/{id}")]
+        public async Task<IActionResult> EliminarAgente(int id)
+        {
+            var agente = await _context.Usuarios.FindAsync(id);
+            if (agente == null) return NotFound();
+            if (agente.IdRol != 2) return BadRequest(new { mensaje = "El usuario no es un agente" });
+
+            var tienePropiedades = await _context.Propiedades.AnyAsync(p => p.IdAgente == id);
+            if (tienePropiedades)
+                return BadRequest(new { mensaje = "No se puede eliminar un agente con propiedades asignadas" });
+
+            _context.Usuarios.Remove(agente);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Agente eliminado exitosamente" });
+        }
+
         [HttpGet("propiedades")]
         public async Task<IActionResult> GetPropiedades()
         {
@@ -145,9 +233,6 @@ namespace InmobiliariaAPI.Controllers
             return Ok(resultado);
         }
 
-        // ============================================================
-        // GET: /api/admin/propiedades/{id}
-        // ============================================================
         [HttpGet("propiedades/{id}")]
         public async Task<IActionResult> GetPropiedad(int id)
         {
@@ -161,84 +246,25 @@ namespace InmobiliariaAPI.Controllers
             return Ok(p);
         }
 
-        // ============================================================
-        // GET: /api/admin/clientes
-        // ============================================================
-        [HttpGet("clientes")]
-        public async Task<IActionResult> GetClientes()
+        [HttpDelete("propiedades/{id}")]
+        public async Task<IActionResult> EliminarPropiedad(int id)
         {
-            var clientes = await _context.Clientes
-                .Include(c => c.EstadoProspecto)
-                .ToListAsync();
+            var propiedad = await _context.Propiedades
+                .Include(p => p.Imagenes)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            return Ok(clientes);
+            if (propiedad == null) return NotFound();
+
+            if (propiedad.Imagenes != null && propiedad.Imagenes.Any())
+                _context.ImagenesPropiedad.RemoveRange(propiedad.Imagenes);
+
+            _context.Propiedades.Remove(propiedad);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Propiedad eliminada exitosamente" });
         }
 
-        // ============================================================
-        // GET: /api/admin/citas
-        // ============================================================
-        [HttpGet("citas")]
-        public async Task<IActionResult> GetCitas()
-        {
-            var citas = await _context.Citas
-                .Include(c => c.Cliente)
-                .Include(c => c.Propiedad)
-                .Include(c => c.Agente)
-                .Include(c => c.EstadoCita)
-                .OrderByDescending(c => c.FechaCita)
-                .ToListAsync();
-
-            return Ok(citas);
-        }
-
-        // ============================================================
-        // GET: /api/admin/comisiones
-        // ============================================================
-        [HttpGet("comisiones")]
-        public async Task<IActionResult> GetComisiones()
-        {
-            var propiedadesCerradas = await _context.Propiedades
-                .Include(p => p.Agente)
-                .Where(p => p.ComisionEmpresaPorcentaje.HasValue
-                         && p.ComisionAgentePorcentaje.HasValue)
-                .OrderByDescending(p => p.FechaCierre)
-                .ToListAsync();
-
-            var resultado = propiedadesCerradas.Select(p =>
-            {
-                decimal comisionEmpresa = p.Precio * (p.ComisionEmpresaPorcentaje ?? 0) / 100;
-                decimal comisionAgente = p.Precio * (p.ComisionAgentePorcentaje ?? 0) / 100;
-
-                return new ComisionDTO
-                {
-                    IdPropiedad = p.Id,
-                    NombrePropiedad = $"{p.Tipo} en {p.Zona}",
-                    Tipo = p.Tipo ?? "",
-                    Zona = p.Zona ?? "",
-                    TipoOperacion = p.TipoOperacion ?? "",
-                    Precio = p.Precio,
-                    Moneda = p.Moneda ?? "USD",
-                    FechaCierre = p.FechaCierre,
-
-                    IdAgente = p.IdAgente,
-                    NombreAgente = p.Agente?.NombreCompleto ?? "",
-
-                    ComisionEmpresaPorcentaje = p.ComisionEmpresaPorcentaje ?? 0,
-                    ComisionEmpresaMonto = comisionEmpresa,
-
-                    ComisionAgentePorcentaje = p.ComisionAgentePorcentaje ?? 0,
-                    ComisionAgenteMonto = comisionAgente,
-
-                    GananciaNetaEmpresa = comisionEmpresa - comisionAgente
-                };
-            }).ToList();
-
-            return Ok(resultado);
-        }
-
-        // ============================================================
-        // POST: /api/admin/propiedades/{id}/cerrar-operacion
-        // ============================================================
+  
         [HttpPost("propiedades/{id}/cerrar-operacion")]
         public async Task<IActionResult> CerrarOperacion(int id, [FromBody] CerrarOperacionDTO dto)
         {
@@ -290,6 +316,101 @@ namespace InmobiliariaAPI.Controllers
                 comisionAgente,
                 gananciaNeta
             });
+        }
+
+    
+        [HttpGet("clientes")]
+        public async Task<IActionResult> GetClientes()
+        {
+            var clientes = await _context.Clientes
+                .Include(c => c.EstadoProspecto)
+                .ToListAsync();
+
+            var resultado = clientes.Select(c => new
+            {
+                c.Id,
+                c.NombreCompleto,
+                c.Email,
+                c.Telefono,
+                c.FechaRegistro,
+                EstadoProspecto = c.EstadoProspecto?.Nombre ?? "",
+                OrdenEstado = c.EstadoProspecto?.Orden ?? 0
+            }).OrderBy(c => c.OrdenEstado).ToList();
+
+            return Ok(resultado);
+        }
+
+        [HttpGet("citas")]
+        public async Task<IActionResult> GetCitas()
+        {
+            var citas = await _context.Citas
+                .Include(c => c.Cliente)
+                .Include(c => c.Propiedad)
+                .Include(c => c.Agente)
+                .Include(c => c.EstadoCita)
+                .OrderByDescending(c => c.FechaCita)
+                .ToListAsync();
+
+            var resultado = citas.Select(c => new
+            {
+                c.Id,
+                c.FechaCita,
+                c.HoraInicio,
+                c.HoraFin,
+                c.FechaSolicitud,
+                c.Observaciones,
+                ClienteNombre = c.Cliente?.NombreCompleto ?? "",
+                ClienteTelefono = c.Cliente?.Telefono ?? "",
+                PropiedadTipo = c.Propiedad?.Tipo ?? "",
+                PropiedadZona = c.Propiedad?.Zona ?? "",
+                AgenteNombre = c.Agente?.NombreCompleto ?? "",
+                EstadoNombre = c.EstadoCita?.NombreEstado ?? ""
+            }).ToList();
+
+            return Ok(resultado);
+        }
+
+      
+        [HttpGet("comisiones")]
+        public async Task<IActionResult> GetComisiones()
+        {
+            var propiedadesCerradas = await _context.Propiedades
+                .Include(p => p.Agente)
+                .Where(p => p.ComisionEmpresaPorcentaje.HasValue
+                         && p.ComisionAgentePorcentaje.HasValue)
+                .OrderByDescending(p => p.FechaCierre)
+                .ToListAsync();
+
+            var resultado = propiedadesCerradas.Select(p =>
+            {
+                decimal comisionEmpresa = p.Precio * (p.ComisionEmpresaPorcentaje ?? 0) / 100;
+                decimal comisionAgente = p.Precio * (p.ComisionAgentePorcentaje ?? 0) / 100;
+
+                return new ComisionDTO
+                {
+                    IdPropiedad = p.Id,
+                    NombrePropiedad = $"{p.Tipo} en {p.Zona}",
+                    Tipo = p.Tipo ?? "",
+                    Zona = p.Zona ?? "",
+                    TipoOperacion = p.TipoOperacion ?? "",
+                    Precio = p.Precio,
+                    Moneda = p.Moneda ?? "USD",
+                    FechaCierre = p.FechaCierre,
+
+                    IdAgente = p.IdAgente,
+                    NombreAgente = p.Agente?.NombreCompleto ?? "",
+
+                    ComisionEmpresaPorcentaje = p.ComisionEmpresaPorcentaje ?? 0,
+                    ComisionEmpresaMonto = comisionEmpresa,
+
+                    ComisionAgentePorcentaje = p.ComisionAgentePorcentaje ?? 0,
+                    ComisionAgenteMonto = comisionAgente,
+
+                    GananciaNetaEmpresa = comisionEmpresa - comisionAgente
+                };
+            }).ToList();
+
+            return Ok(resultado);
         }
     }
 }
