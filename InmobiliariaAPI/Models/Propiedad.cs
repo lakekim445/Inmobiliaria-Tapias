@@ -15,6 +15,12 @@
         public string? Estado { get; set; }
         public DateTime FechaPublicacion { get; set; }
         public int IdAgente { get; set; }
+
+        public string? TipoOperacion { get; set; }
+        public decimal? ComisionEmpresaPorcentaje { get; set; }
+        public decimal? ComisionAgentePorcentaje { get; set; }
+        public DateTime? FechaCierre { get; set; }
+
         public Usuario? Agente { get; set; }
         public List<ImagenPropiedad>? Imagenes { get; set; }
         public List<Cita>? Citas { get; set; }

@@ -27,6 +27,9 @@ namespace InmobiliariaAPI.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // ============================================================
+            // ROL
+            // ============================================================
             modelBuilder.Entity<Rol>(entity =>
             {
                 entity.ToTable("rol");
@@ -36,6 +39,9 @@ namespace InmobiliariaAPI.Data
                 entity.Property(r => r.Descripcion).HasColumnName("descripcion");
             });
 
+            // ============================================================
+            // USUARIO
+            // ============================================================
             modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("usuario");
@@ -55,6 +61,9 @@ namespace InmobiliariaAPI.Data
                     .HasConstraintName("fk_usuario_rol");
             });
 
+            // ============================================================
+            // ESTADO_PROSPECTO
+            // ============================================================
             modelBuilder.Entity<EstadoProspecto>(entity =>
             {
                 entity.ToTable("estado_prospecto");
@@ -65,7 +74,9 @@ namespace InmobiliariaAPI.Data
                 entity.Property(e => e.Orden).HasColumnName("orden");
             });
 
-
+            // ============================================================
+            // CLIENTE
+            // ============================================================
             modelBuilder.Entity<Cliente>(entity =>
             {
                 entity.ToTable("cliente");
@@ -89,7 +100,9 @@ namespace InmobiliariaAPI.Data
                     .HasConstraintName("fk_cliente_estado");
             });
 
-
+            // ============================================================
+            // PROPIEDAD
+            // ============================================================
             modelBuilder.Entity<Propiedad>(entity =>
             {
                 entity.ToTable("propiedad");
@@ -108,13 +121,20 @@ namespace InmobiliariaAPI.Data
                 entity.Property(p => p.FechaPublicacion).HasColumnName("fecha_publicacion");
                 entity.Property(p => p.IdAgente).HasColumnName("id_agente");
 
+                entity.Property(p => p.TipoOperacion).HasColumnName("tipo_operacion");
+                entity.Property(p => p.ComisionEmpresaPorcentaje).HasColumnName("comision_empresa_porcentaje");
+                entity.Property(p => p.ComisionAgentePorcentaje).HasColumnName("comision_agente_porcentaje");
+                entity.Property(p => p.FechaCierre).HasColumnName("fecha_cierre");
+
                 entity.HasOne(p => p.Agente)
                     .WithMany(u => u.Propiedades)
                     .HasForeignKey(p => p.IdAgente)
                     .HasConstraintName("fk_propiedad_agente");
             });
 
-
+            // ============================================================
+            // IMAGEN_PROPIEDAD
+            // ============================================================
             modelBuilder.Entity<ImagenPropiedad>(entity =>
             {
                 entity.ToTable("imagen_propiedad");
@@ -151,7 +171,9 @@ namespace InmobiliariaAPI.Data
                     .HasConstraintName("fk_disponibilidad_agente");
             });
 
-
+            // ============================================================
+            // ESTADO_CITA
+            // ============================================================
             modelBuilder.Entity<EstadoCita>(entity =>
             {
                 entity.ToTable("estado_cita");
@@ -161,7 +183,9 @@ namespace InmobiliariaAPI.Data
                 entity.Property(e => e.Descripcion).HasColumnName("descripcion");
             });
 
-
+            // ============================================================
+            // CITA
+            // ============================================================
             modelBuilder.Entity<Cita>(entity =>
             {
                 entity.ToTable("cita");
@@ -204,7 +228,9 @@ namespace InmobiliariaAPI.Data
                     .HasConstraintName("fk_cita_estado");
             });
 
-
+            // ============================================================
+            // HISTORIAL_ESTADO_CITA
+            // ============================================================
             modelBuilder.Entity<HistorialEstadoCita>(entity =>
             {
                 entity.ToTable("historial_estado_cita");
@@ -228,7 +254,9 @@ namespace InmobiliariaAPI.Data
                     .HasConstraintName("fk_hist_usuario");
             });
 
-
+            // ============================================================
+            // NOTIFICACION
+            // ============================================================
             modelBuilder.Entity<Notificacion>(entity =>
             {
                 entity.ToTable("notificacion");
@@ -259,7 +287,9 @@ namespace InmobiliariaAPI.Data
                     .HasConstraintName("fk_notif_propiedad");
             });
 
-
+            // ============================================================
+            // SEGUIMIENTO_CLIENTE
+            // ============================================================
             modelBuilder.Entity<SeguimientoCliente>(entity =>
             {
                 entity.ToTable("seguimiento_cliente");
