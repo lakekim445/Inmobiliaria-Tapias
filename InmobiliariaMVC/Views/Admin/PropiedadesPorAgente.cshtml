@@ -1,0 +1,37 @@
+﻿@model List<InmobiliariaMVC.Models.PropiedadResumenDTO>
+
+@{
+    ViewData["Title"] = "Propiedades del Agente";
+}
+
+<div class="container-fluid px-4 py-4">
+    <h1 class="mb-4">Propiedades del Agente</h1>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Zona</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Operación</th>
+                    <th>Fecha Cierre</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var prop in Model)
+                {
+                    <tr>
+                        <td>@prop.Tipo</td>
+                        <td>@prop.Zona</td>
+                        <td>@prop.Moneda @prop.Precio.ToString("N2")</td>
+                        <td>@prop.Estado</td>
+                        <td>@(prop.TipoOperacion ?? "-")</td>
+                        <td>@(prop.FechaCierre?.ToString("dd/MM/yyyy") ?? "-")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

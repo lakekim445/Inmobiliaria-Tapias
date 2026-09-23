@@ -1,0 +1,69 @@
+﻿@model List<InmobiliariaMVC.Models.ComisionDTO>
+
+@{
+    ViewData["Title"] = "Comisiones";
+    decimal totalEmpresa = Model.Sum(c => c.ComisionEmpresaMonto);
+    decimal totalAgentes = Model.Sum(c => c.ComisionAgenteMonto);
+    decimal totalGanancia = Model.Sum(c => c.GananciaNetaEmpresa);
+}
+
+<div class="container-fluid px-4 py-4">
+    <h1 class="mb-4">Reporte de Comisiones</h1>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h6 class="text-muted">Comisión Empresa</h6>
+                <h3>$@totalEmpresa.ToString("N2")</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h6 class="text-muted">Comisión Agentes</h6>
+                <h3>$@totalAgentes.ToString("N2")</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h6 class="text-muted">Ganancia Neta</h6>
+                <h3 class="text-success">$@totalGanancia.ToString("N2")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Propiedad</th>
+                    <th>Tipo Op.</th>
+                    <th>Precio</th>
+                    <th>Agente</th>
+                    <th>Fecha</th>
+                    <th>% Empresa</th>
+                    <th>$ Empresa</th>
+                    <th>% Agente</th>
+                    <th>$ Agente</th>
+                    <th>Ganancia Neta</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td>@c.NombrePropiedad</td>
+                        <td>@c.TipoOperacion</td>
+                        <td>@c.Moneda @c.Precio.ToString("N2")</td>
+                        <td>@c.NombreAgente</td>
+                        <td>@(c.FechaCierre?.ToString("dd/MM/yyyy") ?? "-")</td>
+                        <td>@c.ComisionEmpresaPorcentaje.ToString("N2")%</td>
+                        <td>$@c.ComisionEmpresaMonto.ToString("N2")</td>
+                        <td>@c.ComisionAgentePorcentaje.ToString("N2")%</td>
+                        <td>$@c.ComisionAgenteMonto.ToString("N2")</td>
+                        <td class="text-success">$@c.GananciaNetaEmpresa.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

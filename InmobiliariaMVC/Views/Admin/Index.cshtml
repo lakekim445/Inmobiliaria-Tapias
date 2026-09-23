@@ -1,13 +1,76 @@
-﻿@{
-    ViewData["Title"] = "Panel Admin";
+﻿@model InmobiliariaMVC.Models.AdminDashboardDTO
+
+@{
+    ViewData["Title"] = "Panel de Administrador";
 }
 
-<div class="container mt-4">
-    <h1>Panel de Administrador</h1>
-    <p>Bienvenido, <strong>@User.Identity?.Name</strong></p>
-    <p>Rol: <strong>@User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
+<div class="container-fluid px-4 py-4">
+    <h1 class="mb-4">Panel de Administrador</h1>
 
-    <form asp-controller="Account" asp-action="Logout" method="post">
-        <button type="submit" class="btn btn-primary">Cerrar Sesión</button>
-    </form>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h5 class="text-muted">Propiedades</h5>
+                <h2 class="text-dark">@Model.TotalPropiedades</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h5 class="text-muted">Agentes</h5>
+                <h2 class="text-dark">@Model.TotalAgentes</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h5 class="text-muted">Clientes</h5>
+                <h2 class="text-dark">@Model.TotalClientes</h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-3">
+                <h5 class="text-muted">Citas</h5>
+                <h2 class="text-dark">@Model.TotalCitas</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5>Propiedades por estado</h5>
+                <ul class="list-unstyled mb-0">
+                    <li>Disponibles: <strong>@Model.PropiedadesDisponibles</strong></li>
+                    <li>Reservadas: <strong>@Model.PropiedadesReservadas</strong></li>
+                    <li>Vendidas: <strong>@Model.PropiedadesVendidas</strong></li>
+                    <li>Alquiladas: <strong>@Model.PropiedadesAlquiladas</strong></li>
+                    <li>Anticrético: <strong>@Model.PropiedadesAnticretico</strong></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5>Finanzas</h5>
+                <ul class="list-unstyled mb-0">
+                    <li>Comisión empresa: <strong>$@Model.ComisionTotalEmpresa.ToString("N2")</strong></li>
+                    <li>Comisión agentes: <strong>$@Model.ComisionTotalAgentes.ToString("N2")</strong></li>
+                    <li>Ganancia neta: <strong class="text-success">$@Model.GananciaNetaEmpresa.ToString("N2")</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-3">
+            <a asp-action="Agentes" class="btn btn-primary w-100">Ver Agentes</a>
+        </div>
+        <div class="col-md-3">
+            <a asp-action="Propiedades" class="btn btn-primary w-100">Ver Propiedades</a>
+        </div>
+        <div class="col-md-3">
+            <a asp-action="Clientes" class="btn btn-primary w-100">Ver Clientes</a>
+        </div>
+        <div class="col-md-3">
+            <a asp-action="Comisiones" class="btn btn-primary w-100">Ver Comisiones</a>
+        </div>
+    </div>
 </div>

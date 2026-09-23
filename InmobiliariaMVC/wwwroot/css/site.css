@@ -1,8 +1,7 @@
-/* ============================================================
-   TAPIA'S SOLUTION - ESTILOS GLOBALES
-   ============================================================ */
 
-/* Variables de colores y tipografía */
+/* ============================================================
+   VARIABLES GLOBALES (Colores y Tipografía)
+   ============================================================ */
 :root {
     --warm-ivory: #F2EBDD;
     --walnut-brown: #3E2A1E;
@@ -15,7 +14,10 @@
     --font-body: 'Nunito Sans', sans-serif;
 }
 
-/* Reset básico */
+
+/* ============================================================
+   RESET BÁSICO
+   ============================================================ */
 * {
     box-sizing: border-box;
 }
@@ -29,8 +31,9 @@ html, body {
     min-height: 100vh;
 }
 
+
 /* ============================================================
-   TIPOGRAFÍA
+   TIPOGRAFÍA (Títulos y Párrafos)
    ============================================================ */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-titles);
@@ -59,8 +62,9 @@ p, span, label, li, a {
     line-height: 1.6;
 }
 
+
 /* ============================================================
-   NAVBAR (encabezado)
+   NAVBAR (Estilos generales)
    ============================================================ */
 .navbar {
     background-color: var(--walnut-brown) !important;
@@ -90,6 +94,72 @@ p, span, label, li, a {
     .navbar .nav-link:hover {
         color: var(--terracotta) !important;
     }
+
+
+/* ============================================================
+   NAVBAR PERSONALIZADO (Estilo Tapia's Solution)
+   ============================================================ */
+.navbar-custom {
+    background-color: #3E2A1E !important;
+    padding: 0.9rem 1rem;
+    border-bottom: 3px solid #C1512F;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+    .navbar-custom .navbar-brand {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #F2EBDD !important;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .navbar-custom .navbar-brand:hover {
+            color: #C1512F !important;
+        }
+
+    .navbar-custom .nav-link {
+        color: #F2EBDD !important;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+        .navbar-custom .nav-link:hover {
+            color: #C1512F !important;
+            background-color: rgba(193, 81, 47, 0.15);
+        }
+
+    .navbar-custom .navbar-toggler {
+        border-color: #B3A48F;
+    }
+
+    .navbar-custom .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23F2EBDD' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+
+    /* ============================================================
+   BOTÓN DE CERRAR SESIÓN (como link en navbar)
+   ============================================================ */
+    .navbar-custom .btn-link {
+        text-decoration: none;
+        border: none;
+        background: none;
+    }
+
+        .navbar-custom .btn-link:hover {
+            background-color: rgba(193, 81, 47, 0.15);
+        }
+
 
 /* ============================================================
    BOTONES
@@ -136,6 +206,7 @@ p, span, label, li, a {
         color: var(--white);
     }
 
+
 /* ============================================================
    TARJETAS / CONTENEDORES
    ============================================================ */
@@ -157,6 +228,7 @@ p, span, label, li, a {
 .card-text {
     color: var(--walnut-brown);
 }
+
 
 /* ============================================================
    FORMULARIOS
@@ -180,6 +252,7 @@ p, span, label, li, a {
     color: var(--walnut-brown);
     margin-bottom: 0.4rem;
 }
+
 
 /* ============================================================
    TABLAS
@@ -212,6 +285,7 @@ p, span, label, li, a {
         background-color: var(--warm-ivory);
     }
 
+
 /* ============================================================
    BADGES / ETIQUETAS DE ESTADO
    ============================================================ */
@@ -239,6 +313,7 @@ p, span, label, li, a {
     font-weight: 600;
 }
 
+
 /* ============================================================
    FOOTER
    ============================================================ */
@@ -260,6 +335,7 @@ p, span, label, li, a {
             color: var(--warm-ivory);
         }
 
+
 /* ============================================================
    CONTENEDOR PRINCIPAL
    ============================================================ */
@@ -268,6 +344,7 @@ p, span, label, li, a {
     margin: 2rem auto;
     padding: 0 1.5rem;
 }
+
 
 /* ============================================================
    VALIDACIONES
@@ -282,8 +359,9 @@ p, span, label, li, a {
     font-size: 0.9rem;
 }
 
+
 /* ============================================================
-   LINKS
+   LINKS GENERALES
    ============================================================ */
 a {
     color: var(--terracotta);
@@ -295,3 +373,308 @@ a {
         color: var(--olive-green);
         text-decoration: underline;
     }
+
+/* ============================================================
+   HOME - HERO SECTION
+   ============================================================ */
+.hero-section {
+    position: relative;
+    background: linear-gradient(135deg, #3E2A1E 0%, #C1512F 100%);
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    border-bottom: 4px solid #C1512F;
+    overflow: hidden;
+}
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('/images/hero-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.25;
+        z-index: 0;
+    }
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    text-align: center;
+    color: #F2EBDD;
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #F2EBDD;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.hero-subtitle {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 1.25rem;
+    color: #F2EBDD;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-hero-primary,
+.btn-hero-secondary {
+    padding: 0.9rem 2rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-hero-primary {
+    background-color: #C1512F;
+    color: #FFFFFF;
+    border: 2px solid #C1512F;
+}
+
+    .btn-hero-primary:hover {
+        background-color: #F2EBDD;
+        color: #3E2A1E;
+        border-color: #F2EBDD;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+.btn-hero-secondary {
+    background-color: transparent;
+    color: #F2EBDD;
+    border: 2px solid #F2EBDD;
+}
+
+    .btn-hero-secondary:hover {
+        background-color: #F2EBDD;
+        color: #3E2A1E;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+
+/* ============================================================
+   HOME - SECTION HEADER
+   ============================================================ */
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+    .section-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: #3E2A1E;
+        margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+        font-size: 1.1rem;
+        color: #6B6B43;
+        font-weight: 600;
+    }
+
+
+/* ============================================================
+   HOME - SERVICIOS
+   ============================================================ */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.service-card {
+    background-color: #FFFFFF;
+    border: 2px solid #B3A48F;
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(62, 42, 30, 0.08);
+}
+
+    .service-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(62, 42, 30, 0.15);
+        border-color: #C1512F;
+    }
+
+.service-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #3E2A1E 0%, #C1512F 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: #F2EBDD;
+}
+
+.service-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #3E2A1E;
+    margin-bottom: 0.8rem;
+}
+
+.service-card p {
+    color: #3E2A1E;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+
+/* ============================================================
+   HOME - ESTADÍSTICAS
+   ============================================================ */
+.stats-section {
+    background-color: #3E2A1E;
+    padding: 4rem 2rem;
+    border-top: 4px solid #C1512F;
+    border-bottom: 4px solid #C1512F;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 1rem;
+}
+
+.stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #C1512F;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 1rem;
+    color: #F2EBDD;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+
+/* ============================================================
+   HOME - CTA SECTION
+   ============================================================ */
+.cta-section {
+    background: linear-gradient(135deg, #6B6B43 0%, #3E2A1E 100%);
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.cta-content {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+    .cta-content h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: #F2EBDD;
+        margin-bottom: 1rem;
+    }
+
+    .cta-content p {
+        font-size: 1.15rem;
+        color: #F2EBDD;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+    }
+
+.btn-cta {
+    background-color: #C1512F;
+    color: #FFFFFF;
+    padding: 1rem 2.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+    border: 2px solid #C1512F;
+}
+
+    .btn-cta:hover {
+        background-color: #F2EBDD;
+        color: #3E2A1E;
+        border-color: #F2EBDD;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+
+/* ============================================================
+   HOME - RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .cta-content h2 {
+        font-size: 1.8rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-hero-primary,
+    .btn-hero-secondary {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+    }
+}

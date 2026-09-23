@@ -1,0 +1,44 @@
+﻿@model List<InmobiliariaMVC.Models.AgenteResumenDTO>
+
+@{
+    ViewData["Title"] = "Agentes";
+}
+
+<div class="container-fluid px-4 py-4">
+    <h1 class="mb-4">Agentes Inmobiliarios</h1>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Total Propiedades</th>
+                    <th>Vendidas</th>
+                    <th>Alquiladas</th>
+                    <th>Comisión Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var agente in Model)
+                {
+                    <tr>
+                        <td>@agente.NombreCompleto</td>
+                        <td>@agente.Email</td>
+                        <td>@agente.Telefono</td>
+                        <td>@agente.TotalPropiedades</td>
+                        <td>@agente.PropiedadesVendidas</td>
+                        <td>@agente.PropiedadesAlquiladas</td>
+                        <td>$@agente.ComisionTotal.ToString("N2")</td>
+                        <td>
+                            <a asp-action="PropiedadesPorAgente" asp-route-id="@agente.Id"
+                               class="btn btn-sm btn-outline-primary">Ver Propiedades</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
