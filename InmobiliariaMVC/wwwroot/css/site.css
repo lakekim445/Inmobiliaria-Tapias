@@ -318,7 +318,6 @@ p, span, label, li, a {
     color: var(--warm-ivory);
     padding: 1.5rem 2rem;
     text-align: center;
-    margin-top: 3rem;
     border-top: 3px solid var(--terracotta);
 }
 
