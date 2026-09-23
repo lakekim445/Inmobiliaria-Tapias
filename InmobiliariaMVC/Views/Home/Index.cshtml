@@ -7,17 +7,16 @@
      HERO SECTION (Banner principal)
      ============================================================ -->
 <section class="hero-section">
-    <div class="hero-overlay"></div>
     <div class="hero-content">
         <h1 class="hero-title">Encuentra tu hogar ideal</h1>
         <p class="hero-subtitle">
             Tapia's Solution - Tu inmobiliaria de confianza en Cochabamba
         </p>
         <div class="hero-buttons">
-            <a asp-controller="Propiedades" asp-action="Index" class="btn btn-hero-primary">
+            <a asp-controller="Propiedades" asp-action="Index" class="btn-hero-primary">
                 <i class="bi bi-house-door"></i> Ver Propiedades
             </a>
-            <a asp-controller="Account" asp-action="Register" class="btn btn-hero-secondary">
+            <a asp-controller="Account" asp-action="Register" class="btn-hero-secondary">
                 <i class="bi bi-person-plus"></i> Registrarse
             </a>
         </div>
@@ -27,35 +26,37 @@
 <!-- ============================================================
      SECCIÓN DE SERVICIOS
      ============================================================ -->
-<section class="container-main">
-    <div class="section-header">
-        <h2>Nuestros Servicios</h2>
-        <p>Te acompañamos en cada paso de tu búsqueda</p>
-    </div>
-
-    <div class="services-grid">
-        <div class="service-card">
-            <div class="service-icon">
-                <i class="bi bi-house-door-fill"></i>
-            </div>
-            <h3>Venta de Inmuebles</h3>
-            <p>Casas, departamentos y terrenos con la mejor ubicación en Cochabamba.</p>
+<section class="section-servicios">
+    <div class="container-main">
+        <div class="section-header">
+            <h2>Nuestros Servicios</h2>
+            <p>Te acompañamos en cada paso de tu búsqueda</p>
         </div>
 
-        <div class="service-card">
-            <div class="service-icon">
-                <i class="bi bi-key-fill"></i>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="bi bi-house-door-fill"></i>
+                </div>
+                <h3>Venta de Inmuebles</h3>
+                <p>Casas, departamentos y terrenos con la mejor ubicación en Cochabamba.</p>
             </div>
-            <h3>Alquiler y Anticrético</h3>
-            <p>Opciones flexibles de alquiler y anticrético adaptadas a tus necesidades.</p>
-        </div>
 
-        <div class="service-card">
-            <div class="service-icon">
-                <i class="bi bi-clipboard-check-fill"></i>
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="bi bi-key-fill"></i>
+                </div>
+                <h3>Alquiler y Anticrético</h3>
+                <p>Opciones flexibles de alquiler y anticrético adaptadas a tus necesidades.</p>
             </div>
-            <h3>Asesoría Personalizada</h3>
-            <p>Nuestros agentes te guían en todo el proceso de compra o alquiler.</p>
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="bi bi-clipboard-check-fill"></i>
+                </div>
+                <h3>Asesoría Personalizada</h3>
+                <p>Nuestros agentes te guían en todo el proceso de compra o alquiler.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -94,7 +95,7 @@
         <div class="cta-content">
             <h2>¿Listo para encontrar tu próximo hogar?</h2>
             <p>Contáctanos y uno de nuestros agentes te atenderá personalmente.</p>
-            <a asp-controller="Account" asp-action="Register" class="btn btn-cta">
+            <a asp-controller="Account" asp-action="Register" class="btn-cta">
                 <i class="bi bi-arrow-right-circle"></i> Comenzar Ahora
             </a>
         </div>

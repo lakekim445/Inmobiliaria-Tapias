@@ -675,3 +675,23 @@ a {
         justify-content: center;
     }
 }
+
+/* ============================================================
+   FIX FORZADO - FOOTER PEGADO ABAJO
+   ============================================================ */
+html,
+body {
+    height: 100% !important;
+    min-height: 100vh !important;
+}
+
+body {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+    body > main,
+    main[role="main"] {
+        flex: 1 1 auto !important;
+        display: block !important;
+    }
