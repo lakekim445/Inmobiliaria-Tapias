@@ -1,6 +1,10 @@
+/* ============================================================
+   TAPIA'S SOLUTION - ESTILOS GLOBALES
+   ============================================================ */
+
 
 /* ============================================================
-   VARIABLES GLOBALES (Colores y Tipografía)
+   VARIABLES GLOBALES
    ============================================================ */
 :root {
     --warm-ivory: #F2EBDD;
@@ -29,6 +33,10 @@ html, body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+}
+
+body {
+    padding-bottom: 100px;
 }
 
 
@@ -64,40 +72,7 @@ p, span, label, li, a {
 
 
 /* ============================================================
-   NAVBAR (Estilos generales)
-   ============================================================ */
-.navbar {
-    background-color: var(--walnut-brown) !important;
-    padding: 1rem 2rem;
-    border-bottom: 3px solid var(--terracotta);
-}
-
-.navbar-brand {
-    font-family: var(--font-titles);
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--warm-ivory) !important;
-    letter-spacing: 0.5px;
-}
-
-    .navbar-brand:hover {
-        color: var(--terracotta) !important;
-    }
-
-.navbar .nav-link {
-    color: var(--warm-ivory) !important;
-    font-weight: 600;
-    margin-left: 1rem;
-    transition: color 0.3s;
-}
-
-    .navbar .nav-link:hover {
-        color: var(--terracotta) !important;
-    }
-
-
-/* ============================================================
-   NAVBAR PERSONALIZADO (Estilo Tapia's Solution)
+   NAVBAR PERSONALIZADO
    ============================================================ */
 .navbar-custom {
     background-color: #3E2A1E !important;
@@ -283,7 +258,7 @@ p, span, label, li, a {
 
 
 /* ============================================================
-   BADGES / ETIQUETAS DE ESTADO
+   BADGES / ETIQUETAS
    ============================================================ */
 .badge-disponible {
     background-color: var(--olive-green);
@@ -307,43 +282,6 @@ p, span, label, li, a {
     padding: 0.4rem 0.8rem;
     border-radius: 6px;
     font-weight: 600;
-}
-
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
-.footer {
-    background-color: var(--walnut-brown);
-    color: var(--warm-ivory);
-    padding: 1.5rem 2rem;
-    text-align: center;
-    border-top: 3px solid var(--terracotta);
-}
-
-    .footer p,
-    .footer span,
-    .footer a {
-        color: var(--warm-ivory) !important; /* ← IMPORTANTE: forzar color claro */
-        margin: 0;
-    }
-
-    .footer a {
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-
-        .footer a:hover {
-            color: var(--terracotta) !important;
-        }
-
-/* ============================================================
-   CONTENEDOR PRINCIPAL
-   ============================================================ */
-.container-main {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
 }
 
 
@@ -377,16 +315,59 @@ a {
 
 
 /* ============================================================
+   CONTENEDOR PRINCIPAL
+   ============================================================ */
+.container-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+
+/* ============================================================
+   FOOTER - FIJO AL FONDO
+   ============================================================ */
+.footer {
+    background-color: #3E2A1E;
+    color: #F2EBDD;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border-top: 3px solid #C1512F;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+    .footer p {
+        color: #F2EBDD !important;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .footer a {
+        color: #C1512F !important;
+        text-decoration: none;
+    }
+
+        .footer a:hover {
+            color: #F2EBDD !important;
+        }
+
+
+/* ============================================================
    HOME - HERO SECTION
    ============================================================ */
 .hero-section {
     position: relative;
     background: linear-gradient(135deg, #3E2A1E 0%, #C1512F 100%);
-    min-height: 500px;
+    min-height: 520px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: 5rem 2rem;
     border-bottom: 4px solid #C1512F;
     overflow: hidden;
 }
@@ -401,33 +382,51 @@ a {
         background-image: url('/images/hero-bg.jpg');
         background-size: cover;
         background-position: center;
-        opacity: 0.25;
+        opacity: 0.2;
         z-index: 0;
     }
 
 .hero-content {
     position: relative;
     z-index: 1;
-    max-width: 800px;
+    max-width: 850px;
     text-align: center;
     color: #F2EBDD;
 }
 
+.hero-badge {
+    display: inline-block;
+    background-color: rgba(242, 235, 221, 0.15);
+    color: #F2EBDD;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(242, 235, 221, 0.3);
+}
+
 .hero-title {
     font-family: 'Playfair Display', serif;
-    font-size: 3.5rem;
+    font-size: 3.8rem;
     font-weight: 700;
     color: #F2EBDD;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+    margin-bottom: 1.2rem;
+    line-height: 1.15;
+    text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .hero-subtitle {
     font-family: 'Nunito Sans', sans-serif;
     font-size: 1.25rem;
     color: #F2EBDD;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     opacity: 0.95;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .hero-buttons {
@@ -439,21 +438,22 @@ a {
 
 .btn-hero-primary,
 .btn-hero-secondary {
-    padding: 0.9rem 2rem;
+    padding: 1rem 2.2rem;
     font-weight: 700;
     font-size: 1rem;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
     transition: all 0.3s;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .btn-hero-primary {
     background-color: #C1512F;
     color: #FFFFFF;
     border: 2px solid #C1512F;
+    box-shadow: 0 4px 15px rgba(193, 81, 47, 0.4);
 }
 
     .btn-hero-primary:hover {
@@ -461,7 +461,7 @@ a {
         color: #3E2A1E;
         border-color: #F2EBDD;
         transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     }
 
 .btn-hero-secondary {
@@ -474,84 +474,107 @@ a {
         background-color: #F2EBDD;
         color: #3E2A1E;
         transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     }
 
 
 /* ============================================================
-   HOME - SECTION HEADER
+   HOME - SECCIÓN SERVICIOS
    ============================================================ */
-.section-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 3rem 1rem 0;
+.section-servicios {
+    padding: 5rem 1rem;
+    background-color: #F2EBDD;
 }
 
-    .section-header h2 {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.5rem;
-        color: #3E2A1E;
-        margin-bottom: 0.5rem;
+    .section-servicios .container-main {
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    .section-header p {
-        font-size: 1.1rem;
-        color: #6B6B43;
-        font-weight: 600;
-    }
+.section-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
 
+.section-tag {
+    display: inline-block;
+    color: #C1512F;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+}
 
-/* ============================================================
-   HOME - SERVICIOS
-   ============================================================ */
+.section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: #3E2A1E;
+    margin-bottom: 0.6rem;
+    font-weight: 700;
+}
+
+.section-header p {
+    font-size: 1.1rem;
+    color: #6B6B43;
+    font-weight: 600;
+}
+
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
-    margin-bottom: 4rem;
 }
 
 .service-card {
     background-color: #FFFFFF;
-    border: 2px solid #B3A48F;
-    border-radius: 16px;
-    padding: 2rem 1.5rem;
+    border: 2px solid #E5DCC9;
+    border-radius: 20px;
+    padding: 2.5rem 1.8rem;
     text-align: center;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(62, 42, 30, 0.08);
+    transition: all 0.35s ease;
+    box-shadow: 0 4px 15px rgba(62, 42, 30, 0.06);
 }
 
     .service-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(62, 42, 30, 0.15);
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(62, 42, 30, 0.15);
         border-color: #C1512F;
     }
 
 .service-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 1.8rem;
     background: linear-gradient(135deg, #3E2A1E 0%, #C1512F 100%);
-    border-radius: 50%;
+    border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
     color: #F2EBDD;
+    box-shadow: 0 8px 20px rgba(193, 81, 47, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+    transform: scale(1.1) rotate(-5deg);
 }
 
 .service-card h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     color: #3E2A1E;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.9rem;
+    font-weight: 700;
 }
 
 .service-card p {
     color: #3E2A1E;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 0.98rem;
+    line-height: 1.7;
     margin: 0;
+    opacity: 0.85;
 }
 
 
@@ -559,11 +582,36 @@ a {
    HOME - ESTADÍSTICAS
    ============================================================ */
 .stats-section {
-    background-color: #3E2A1E;
-    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #3E2A1E 0%, #2A1D14 100%);
+    padding: 5rem 1rem;
     border-top: 4px solid #C1512F;
     border-bottom: 4px solid #C1512F;
 }
+
+    .stats-section .container-main {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+.section-header-light {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+    .section-header-light h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: #F2EBDD;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .section-header-light p {
+        font-size: 1.1rem;
+        color: #C1512F;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
 
 .stats-grid {
     display: grid;
@@ -573,15 +621,23 @@ a {
 }
 
 .stat-item {
-    padding: 1rem;
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
+    transition: all 0.3s ease;
 }
+
+    .stat-item:hover {
+        background-color: rgba(193, 81, 47, 0.1);
+        transform: translateY(-5px);
+    }
 
 .stat-number {
     font-family: 'Playfair Display', serif;
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 700;
     color: #C1512F;
     margin-bottom: 0.5rem;
+    line-height: 1;
 }
 
 .stat-label {
@@ -590,6 +646,7 @@ a {
     color: #F2EBDD;
     font-weight: 600;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 
@@ -598,42 +655,64 @@ a {
    ============================================================ */
 .cta-section {
     background: linear-gradient(135deg, #6B6B43 0%, #3E2A1E 100%);
-    padding: 4rem 2rem;
+    padding: 5rem 1rem;
     text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(193, 81, 47, 0.3) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .cta-section .container-main {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
 .cta-content {
-    max-width: 700px;
+    max-width: 750px;
     margin: 0 auto;
 }
 
     .cta-content h2 {
         font-family: 'Playfair Display', serif;
-        font-size: 2.5rem;
+        font-size: 2.8rem;
         color: #F2EBDD;
         margin-bottom: 1rem;
+        font-weight: 700;
     }
 
     .cta-content p {
         font-size: 1.15rem;
         color: #F2EBDD;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         opacity: 0.95;
     }
 
 .btn-cta {
     background-color: #C1512F;
     color: #FFFFFF;
-    padding: 1rem 2.5rem;
+    padding: 1.1rem 2.8rem;
     font-weight: 700;
     font-size: 1.1rem;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     transition: all 0.3s;
     border: 2px solid #C1512F;
+    box-shadow: 0 6px 20px rgba(193, 81, 47, 0.4);
 }
 
     .btn-cta:hover {
@@ -641,14 +720,29 @@ a {
         color: #3E2A1E;
         border-color: #F2EBDD;
         transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
 
 /* ============================================================
    HOME - RESPONSIVE
    ============================================================ */
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: 3rem;
+    }
+}
+
 @media (max-width: 768px) {
+    body {
+        padding-bottom: 120px;
+    }
+
+    .hero-section {
+        min-height: 450px;
+        padding: 3rem 1.5rem;
+    }
+
     .hero-title {
         font-size: 2.2rem;
     }
@@ -657,16 +751,14 @@ a {
         font-size: 1rem;
     }
 
-    .section-header h2 {
-        font-size: 1.8rem;
-    }
-
-    .stat-number {
+    .section-header h2,
+    .section-header-light h2,
+    .cta-content h2 {
         font-size: 2rem;
     }
 
-    .cta-content h2 {
-        font-size: 1.8rem;
+    .stat-number {
+        font-size: 2.5rem;
     }
 
     .hero-buttons {
@@ -677,27 +769,11 @@ a {
     .btn-hero-primary,
     .btn-hero-secondary {
         width: 100%;
-        max-width: 280px;
+        max-width: 300px;
         justify-content: center;
     }
-}
 
-/* ============================================================
-   FIX FORZADO - FOOTER PEGADO ABAJO
-   ============================================================ */
-html,
-body {
-    height: 100% !important;
-    min-height: 100vh !important;
-}
-
-body {
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-    body > main,
-    main[role="main"] {
-        flex: 1 1 auto !important;
-        display: block !important;
+    .service-card {
+        padding: 2rem 1.5rem;
     }
+}

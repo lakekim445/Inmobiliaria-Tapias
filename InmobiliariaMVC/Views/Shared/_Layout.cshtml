@@ -21,6 +21,9 @@
     <link rel="stylesheet" href="~/InmobiliariaMVC.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- ============================================================
+         NAVBAR
+         ============================================================ -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-custom">
             <div class="container-fluid px-4">
@@ -100,14 +103,23 @@
         </nav>
     </header>
 
+    <!-- ============================================================
+         CONTENIDO PRINCIPAL
+         ============================================================ -->
     <main role="main">
         @RenderBody()
     </main>
 
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
     <footer class="footer">
         <p>&copy; @DateTime.Now.Year - Tapia's Solution | Inmobiliaria en Cochabamba, Bolivia</p>
     </footer>
 
+    <!-- ============================================================
+         SCRIPTS
+         ============================================================ -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
