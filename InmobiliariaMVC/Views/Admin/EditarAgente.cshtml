@@ -1,0 +1,57 @@
+﻿@model InmobiliariaMVC.Models.AgenteUpdateViewModel
+
+@{
+    ViewData["Title"] = "Editar Agente";
+}
+
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Editar Agente</h1>
+        <a asp-action="Agentes" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card form-card">
+        <form asp-action="EditarAgente" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="NombreCompleto" class="form-label">
+                    <i class="bi bi-person"></i> Nombre Completo
+                </label>
+                <input asp-for="NombreCompleto" class="form-control" />
+                <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">
+                    <i class="bi bi-envelope"></i> Correo
+                </label>
+                <input asp-for="Email" type="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Telefono" class="form-label">
+                    <i class="bi bi-telephone"></i> Teléfono
+                </label>
+                <input asp-for="Telefono" class="form-control" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="Activo" class="form-check-input" />
+                <label asp-for="Activo" class="form-check-label">Cuenta activa</label>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Agentes" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
