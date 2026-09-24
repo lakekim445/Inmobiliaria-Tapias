@@ -119,9 +119,3 @@ namespace InmobiliariaMVC.Controllers
         }
     }
 }
-
-
-
-
-
-
