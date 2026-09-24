@@ -19,6 +19,9 @@ namespace InmobiliariaAPI.Controllers
             _context = context;
         }
 
+        // ============================================================
+        // DASHBOARD
+        // ============================================================
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetDashboard()
         {
@@ -61,6 +64,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(dto);
         }
 
+        // ============================================================
+        // AGENTES - LISTAR
+        // ============================================================
         [HttpGet("agentes")]
         public async Task<IActionResult> GetAgentes()
         {
@@ -97,6 +103,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(resultado);
         }
 
+        // ============================================================
+        // AGENTES - DETALLE
+        // ============================================================
         [HttpGet("agentes/{id}")]
         public async Task<IActionResult> GetAgente(int id)
         {
@@ -118,6 +127,9 @@ namespace InmobiliariaAPI.Controllers
             });
         }
 
+        // ============================================================
+        // AGENTES - CREAR
+        // ============================================================
         [HttpPost("agentes")]
         public async Task<IActionResult> CrearAgente([FromBody] AgenteCreateDTO dto)
         {
@@ -153,7 +165,9 @@ namespace InmobiliariaAPI.Controllers
             });
         }
 
-
+        // ============================================================
+        // AGENTES - EDITAR
+        // ============================================================
         [HttpPut("agentes/{id}")]
         public async Task<IActionResult> EditarAgente(int id, [FromBody] AgenteUpdateDTO dto)
         {
@@ -177,6 +191,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(new { mensaje = "Agente actualizado exitosamente" });
         }
 
+        // ============================================================
+        // AGENTES - ELIMINAR
+        // ============================================================
         [HttpDelete("agentes/{id}")]
         public async Task<IActionResult> EliminarAgente(int id)
         {
@@ -194,6 +211,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(new { mensaje = "Agente eliminado exitosamente" });
         }
 
+        // ============================================================
+        // PROPIEDADES - LISTAR
+        // ============================================================
         [HttpGet("propiedades")]
         public async Task<IActionResult> GetPropiedades()
         {
@@ -233,6 +253,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(resultado);
         }
 
+        // ============================================================
+        // PROPIEDADES - DETALLE (devuelve DTO, no modelo de BD)
+        // ============================================================
         [HttpGet("propiedades/{id}")]
         public async Task<IActionResult> GetPropiedad(int id)
         {
@@ -243,9 +266,62 @@ namespace InmobiliariaAPI.Controllers
 
             if (p == null) return NotFound();
 
-            return Ok(p);
+            return Ok(new PropiedadResumenDTO
+            {
+                Id = p.Id,
+                Tipo = p.Tipo ?? "",
+                Precio = p.Precio,
+                Moneda = p.Moneda ?? "USD",
+                Zona = p.Zona ?? "",
+                Direccion = p.Direccion ?? "",
+                Estado = p.Estado ?? "",
+                Habitaciones = p.Habitaciones,
+                Banos = p.Banos,
+                SuperficieM2 = p.SuperficieM2,
+                FechaPublicacion = p.FechaPublicacion,
+
+                IdAgente = p.IdAgente,
+                NombreAgente = p.Agente?.NombreCompleto ?? "",
+
+                TipoOperacion = p.TipoOperacion,
+                FechaCierre = p.FechaCierre,
+                ComisionEmpresaPorcentaje = p.ComisionEmpresaPorcentaje,
+                ComisionAgentePorcentaje = p.ComisionAgentePorcentaje,
+
+                UrlImagenPrincipal = p.Imagenes?
+                    .FirstOrDefault(i => i.EsPrincipal)?.UrlImagen
+                    ?? p.Imagenes?.FirstOrDefault()?.UrlImagen
+            });
         }
 
+        // ============================================================
+        // PROPIEDADES - EDITAR
+        // ============================================================
+        [HttpPut("propiedades/{id}")]
+        public async Task<IActionResult> EditarPropiedad(int id, [FromBody] PropiedadUpdateDTO dto)
+        {
+            var propiedad = await _context.Propiedades.FindAsync(id);
+            if (propiedad == null) return NotFound();
+
+            propiedad.Tipo = dto.Tipo;
+            propiedad.Precio = dto.Precio;
+            propiedad.Moneda = dto.Moneda;
+            propiedad.Zona = dto.Zona;
+            propiedad.Direccion = dto.Direccion;
+            propiedad.Descripcion = dto.Descripcion;
+            propiedad.Habitaciones = dto.Habitaciones;
+            propiedad.Banos = dto.Banos;
+            propiedad.SuperficieM2 = dto.SuperficieM2;
+            propiedad.Estado = dto.Estado;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Propiedad actualizada exitosamente" });
+        }
+
+        // ============================================================
+        // PROPIEDADES - ELIMINAR
+        // ============================================================
         [HttpDelete("propiedades/{id}")]
         public async Task<IActionResult> EliminarPropiedad(int id)
         {
@@ -264,7 +340,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(new { mensaje = "Propiedad eliminada exitosamente" });
         }
 
-  
+        // ============================================================
+        // PROPIEDADES - CERRAR OPERACIÓN
+        // ============================================================
         [HttpPost("propiedades/{id}/cerrar-operacion")]
         public async Task<IActionResult> CerrarOperacion(int id, [FromBody] CerrarOperacionDTO dto)
         {
@@ -318,28 +396,34 @@ namespace InmobiliariaAPI.Controllers
             });
         }
 
-    
+        // ============================================================
+        // CLIENTES - LISTAR
+        // ============================================================
         [HttpGet("clientes")]
         public async Task<IActionResult> GetClientes()
         {
             var clientes = await _context.Clientes
                 .Include(c => c.EstadoProspecto)
+                .OrderBy(c => c.EstadoProspecto!.Orden)
                 .ToListAsync();
 
-            var resultado = clientes.Select(c => new
+            var resultado = clientes.Select(c => new ClienteResumenDTO
             {
-                c.Id,
-                c.NombreCompleto,
-                c.Email,
-                c.Telefono,
-                c.FechaRegistro,
+                Id = c.Id,
+                NombreCompleto = c.NombreCompleto ?? "",
+                Email = c.Email ?? "",
+                Telefono = c.Telefono ?? "",
+                FechaRegistro = c.FechaRegistro,
                 EstadoProspecto = c.EstadoProspecto?.Nombre ?? "",
                 OrdenEstado = c.EstadoProspecto?.Orden ?? 0
-            }).OrderBy(c => c.OrdenEstado).ToList();
+            }).ToList();
 
             return Ok(resultado);
         }
 
+        // ============================================================
+        // CITAS - LISTAR
+        // ============================================================
         [HttpGet("citas")]
         public async Task<IActionResult> GetCitas()
         {
@@ -370,7 +454,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(resultado);
         }
 
-      
+        // ============================================================
+        // COMISIONES - REPORTE
+        // ============================================================
         [HttpGet("comisiones")]
         public async Task<IActionResult> GetComisiones()
         {

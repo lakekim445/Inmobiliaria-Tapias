@@ -160,5 +160,140 @@ namespace InmobiliariaMVC.Controllers
 
             return View(filtradas);
         }
+        // ============================================================
+        // PROPIEDADES - DETALLE
+        // ============================================================
+        public async Task<IActionResult> DetallePropiedad(int id)
+        {
+            var propiedad = await _apiService.GetAsync<PropiedadResumenDTO>($"api/AdminApi/propiedades/{id}");
+            if (propiedad == null) return NotFound();
+            return View(propiedad);
+        }
+
+        // ============================================================
+        // PROPIEDADES - EDITAR (GET)
+        // ============================================================
+        [HttpGet]
+        public async Task<IActionResult> EditarPropiedad(int id)
+        {
+            var propiedad = await _apiService.GetAsync<PropiedadResumenDTO>($"api/AdminApi/propiedades/{id}");
+            if (propiedad == null) return NotFound();
+
+            var model = new PropiedadUpdateViewModel
+            {
+                Id = propiedad.Id,
+                Tipo = propiedad.Tipo,
+                Precio = propiedad.Precio,
+                Moneda = propiedad.Moneda,
+                Zona = propiedad.Zona,
+                Direccion = propiedad.Direccion,
+                Habitaciones = propiedad.Habitaciones,
+                Banos = propiedad.Banos,
+                SuperficieM2 = propiedad.SuperficieM2,
+                Estado = propiedad.Estado
+            };
+
+            return View(model);
+        }
+
+        // ============================================================
+        // PROPIEDADES - EDITAR (POST)
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarPropiedad(PropiedadUpdateViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var resultado = await _apiService.PutAsync(
+                $"api/AdminApi/propiedades/{model.Id}",
+                new
+                {
+                    Tipo = model.Tipo,
+                    Precio = model.Precio,
+                    Moneda = model.Moneda,
+                    Zona = model.Zona,
+                    Direccion = model.Direccion,
+                    Descripcion = model.Descripcion,
+                    Habitaciones = model.Habitaciones,
+                    Banos = model.Banos,
+                    SuperficieM2 = model.SuperficieM2,
+                    Estado = model.Estado
+                });
+
+            if (!resultado)
+            {
+                ModelState.AddModelError("", "Error al actualizar la propiedad.");
+                return View(model);
+            }
+
+            TempData["MensajeExito"] = "Propiedad actualizada exitosamente";
+            return RedirectToAction("Propiedades");
+        }
+
+        // ============================================================
+        // PROPIEDADES - ELIMINAR
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarPropiedad(int id)
+        {
+            var resultado = await _apiService.DeleteAsync($"api/AdminApi/propiedades/{id}");
+
+            if (resultado)
+                TempData["MensajeExito"] = "Propiedad eliminada exitosamente";
+            else
+                TempData["MensajeError"] = "Error al eliminar la propiedad.";
+
+            return RedirectToAction("Propiedades");
+        }
+
+        // ============================================================
+        // PROPIEDADES - CERRAR OPERACIÓN (GET)
+        // ============================================================
+        [HttpGet]
+        public async Task<IActionResult> CerrarOperacion(int id)
+        {
+            var propiedad = await _apiService.GetAsync<PropiedadResumenDTO>($"api/AdminApi/propiedades/{id}");
+            if (propiedad == null) return NotFound();
+
+            var model = new CerrarOperacionViewModel
+            {
+                Id = propiedad.Id,
+                NombrePropiedad = $"{propiedad.Tipo} en {propiedad.Zona}",
+                PrecioPublicado = propiedad.Precio,
+                Moneda = propiedad.Moneda
+            };
+
+            return View(model);
+        }
+
+        // ============================================================
+        // PROPIEDADES - CERRAR OPERACIÓN (POST)
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CerrarOperacion(CerrarOperacionViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var resultado = await _apiService.PostAsync<object>(
+                $"api/AdminApi/propiedades/{model.Id}/cerrar-operacion",
+                new
+                {
+                    TipoOperacion = model.TipoOperacion,
+                    PrecioFinal = model.PrecioFinal,
+                    Observaciones = model.Observaciones
+                });
+
+            if (resultado == null)
+            {
+                ModelState.AddModelError("", "Error al cerrar la operación.");
+                return View(model);
+            }
+
+            TempData["MensajeExito"] = "Operación cerrada exitosamente";
+            return RedirectToAction("Propiedades");
+        }
     }
 }
