@@ -396,29 +396,39 @@ namespace InmobiliariaAPI.Controllers
             });
         }
 
-        // ============================================================
-        // CLIENTES - LISTAR
-        // ============================================================
         [HttpGet("clientes")]
         public async Task<IActionResult> GetClientes()
         {
-            var clientes = await _context.Clientes
-                .Include(c => c.EstadoProspecto)
-                .OrderBy(c => c.EstadoProspecto!.Orden)
-                .ToListAsync();
-
-            var resultado = clientes.Select(c => new ClienteResumenDTO
+            try
             {
-                Id = c.Id,
-                NombreCompleto = c.NombreCompleto ?? "",
-                Email = c.Email ?? "",
-                Telefono = c.Telefono ?? "",
-                FechaRegistro = c.FechaRegistro,
-                EstadoProspecto = c.EstadoProspecto?.Nombre ?? "",
-                OrdenEstado = c.EstadoProspecto?.Orden ?? 0
-            }).ToList();
+                // 1. Consultar los clientes
+                var clientes = await _context.Clientes.ToListAsync();
 
-            return Ok(resultado);
+                // 2. Consultar los estados
+                var estados = await _context.EstadosProspecto.ToListAsync();
+
+                // 3. Combinar en memoria
+                var resultado = clientes.Select(c =>
+                {
+                    var estado = estados.FirstOrDefault(e => e.Id == c.IdEstadoProspecto);
+                    return new ClienteResumenDTO
+                    {
+                        Id = c.Id,
+                        NombreCompleto = c.NombreCompleto ?? "",
+                        Email = c.Email ?? "",
+                        Telefono = c.Telefono ?? "",
+                        FechaRegistro = c.FechaRegistro,
+                        EstadoProspecto = estado?.Nombre ?? "Sin estado",
+                        OrdenEstado = estado?.Orden ?? 0
+                    };
+                }).OrderBy(c => c.OrdenEstado).ToList();
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = ex.Message, detalle = ex.InnerException?.Message });
+            }
         }
 
         // ============================================================
