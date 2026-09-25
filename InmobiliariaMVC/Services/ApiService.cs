@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace InmobiliariaMVC.Services
 {
@@ -72,6 +73,21 @@ namespace InmobiliariaMVC.Services
 
             var response = await _httpClient.DeleteAsync(endpoint);
             return response.IsSuccessStatusCode;
+        }
+
+        // 🆕 Método nuevo para subir archivos
+        public async Task<T?> PostFormDataAsync<T>(string endpoint, MultipartFormDataContent content)
+        {
+            AgregarToken();
+            var response = await _httpClient.PostAsync(endpoint, content);
+
+            if (!response.IsSuccessStatusCode) return default;
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<T>(responseJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
         }
     }
 }
