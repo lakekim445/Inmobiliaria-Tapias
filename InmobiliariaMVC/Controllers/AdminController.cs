@@ -132,8 +132,8 @@ namespace InmobiliariaMVC.Controllers
 
         public async Task<IActionResult> Clientes()
         {
-            var clientes = await _apiService.GetAsync<List<object>>("api/AdminApi/clientes");
-            return View(clientes ?? new List<object>());
+            var clientes = await _apiService.GetAsync<List<ClienteResumenDTO>>("api/AdminApi/clientes");
+            return View(clientes ?? new List<ClienteResumenDTO>());
         }
 
         public async Task<IActionResult> Citas()
