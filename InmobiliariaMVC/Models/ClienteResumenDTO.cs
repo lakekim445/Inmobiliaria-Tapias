@@ -1,4 +1,4 @@
-﻿namespace InmobiliariaAPI.DTOs
+﻿namespace InmobiliariaMVC.Models
 {
     public class ClienteResumenDTO
     {
