@@ -51,6 +51,7 @@ namespace InmobiliariaAPI.Controllers
             if (emailExiste)
                 return BadRequest(new { mensaje = "El email ya está registrado" });
 
+            // 1. Crear el usuario con rol Cliente (3)
             var nuevoUsuario = new Usuario
             {
                 NombreCompleto = dto.NombreCompleto,
@@ -65,7 +66,21 @@ namespace InmobiliariaAPI.Controllers
             _context.Usuarios.Add(nuevoUsuario);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mensaje = "Usuario registrado exitosamente" });
+            // 2. Crear el registro en la tabla cliente
+            var nuevoCliente = new Cliente
+            {
+                NombreCompleto = dto.NombreCompleto,
+                Email = dto.Email,
+                Telefono = dto.Telefono ?? "00000000",
+                FechaRegistro = DateTime.UtcNow,
+                IdUsuario = nuevoUsuario.Id,
+                IdEstadoProspecto = 1
+            };
+
+            _context.Clientes.Add(nuevoCliente);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Usuario y cliente registrados exitosamente" });
         }
 
         private string GenerarToken(Usuario usuario)
