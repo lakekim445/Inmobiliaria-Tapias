@@ -119,16 +119,3 @@ namespace InmobiliariaMVC.Controllers
         }
     }
 }
-public async Task<IActionResult> Logout()
-{
-    HttpContext.Session.Clear();
-    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return RedirectToAction("Login", "Account");
-}
-
-public IActionResult AccesoDenegado()
-{
-    return View();
-}
-    }
-}
