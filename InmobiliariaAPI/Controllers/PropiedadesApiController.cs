@@ -1,6 +1,7 @@
 ﻿using InmobiliariaAPI.Data;
 using InmobiliariaAPI.DTOs;
 using InmobiliariaAPI.Models;
+using InmobiliariaAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +14,17 @@ namespace InmobiliariaAPI.Controllers
     public class PropiedadesApiController : ControllerBase
     {
         private readonly InmobiliariaContext _context;
+        private readonly StorageService _storageService;
 
-        public PropiedadesApiController(InmobiliariaContext context)
+        public PropiedadesApiController(InmobiliariaContext context, StorageService storageService)
         {
             _context = context;
+            _storageService = storageService;
         }
 
+        // ============================================================
+        // GET: /api/propiedades (todas las disponibles)
+        // ============================================================
         [HttpGet]
         public async Task<IActionResult> GetPropiedades()
         {
@@ -33,6 +39,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(resultado);
         }
 
+        // ============================================================
+        // GET: /api/propiedades/{id} (detalle)
+        // ============================================================
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPropiedad(int id)
         {
@@ -46,6 +55,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(MapToDetalleDTO(p));
         }
 
+        // ============================================================
+        // GET: /api/propiedades/agente/{id} (las del agente)
+        // ============================================================
         [HttpGet("agente/{id}")]
         public async Task<IActionResult> GetPropiedadesPorAgente(int id)
         {
@@ -60,9 +72,12 @@ namespace InmobiliariaAPI.Controllers
             return Ok(resultado);
         }
 
+        // ============================================================
+        // POST: /api/propiedades (crear con imágenes)
+        // ============================================================
         [HttpPost]
         [Authorize(Roles = "Agente,Admin")]
-        public async Task<IActionResult> CrearPropiedad([FromBody] PropiedadCreateDTO dto)
+        public async Task<IActionResult> CrearPropiedad([FromForm] PropiedadCreateDTO dto, IFormFileCollection files)
         {
             if (string.IsNullOrEmpty(dto.Tipo) ||
                 dto.Precio <= 0 ||
@@ -91,17 +106,31 @@ namespace InmobiliariaAPI.Controllers
             _context.Propiedades.Add(nuevaPropiedad);
             await _context.SaveChangesAsync();
 
-            if (dto.Imagenes != null && dto.Imagenes.Any())
+            // Subir imágenes a Supabase Storage
+            if (files != null && files.Any())
             {
-                foreach (var img in dto.Imagenes)
+                int contador = 0;
+                foreach (var file in files)
                 {
-                    _context.ImagenesPropiedad.Add(new ImagenPropiedad
+                    if (file.Length > 0)
                     {
-                        UrlImagen = img.UrlImagen,
-                        Descripcion = img.Descripcion,
-                        EsPrincipal = img.EsPrincipal,
-                        IdPropiedad = nuevaPropiedad.Id
-                    });
+                        var urlImagen = await _storageService.SubirImagenAsync(
+                            file.OpenReadStream(),
+                            file.FileName,
+                            file.ContentType);
+
+                        if (!string.IsNullOrEmpty(urlImagen))
+                        {
+                            _context.ImagenesPropiedad.Add(new ImagenPropiedad
+                            {
+                                UrlImagen = urlImagen,
+                                Descripcion = file.FileName,
+                                EsPrincipal = contador == 0,
+                                IdPropiedad = nuevaPropiedad.Id
+                            });
+                            contador++;
+                        }
+                    }
                 }
                 await _context.SaveChangesAsync();
             }
@@ -113,6 +142,9 @@ namespace InmobiliariaAPI.Controllers
             });
         }
 
+        // ============================================================
+        // PUT: /api/propiedades/{id} (editar)
+        // ============================================================
         [HttpPut("{id}")]
         [Authorize(Roles = "Agente,Admin")]
         public async Task<IActionResult> EditarPropiedad(int id, [FromBody] PropiedadCreateDTO dto)
@@ -135,7 +167,9 @@ namespace InmobiliariaAPI.Controllers
             return Ok(new { mensaje = "Propiedad actualizada exitosamente" });
         }
 
-
+        // ============================================================
+        // DELETE: /api/propiedades/{id} (eliminar)
+        // ============================================================
         [HttpDelete("{id}")]
         [Authorize(Roles = "Agente,Admin")]
         public async Task<IActionResult> EliminarPropiedad(int id)
@@ -146,8 +180,16 @@ namespace InmobiliariaAPI.Controllers
 
             if (propiedad == null) return NotFound();
 
+            // Eliminar imágenes de Supabase Storage
             if (propiedad.Imagenes != null && propiedad.Imagenes.Any())
+            {
+                foreach (var img in propiedad.Imagenes)
+                {
+                    if (!string.IsNullOrEmpty(img.UrlImagen))
+                        await _storageService.EliminarImagenAsync(img.UrlImagen);
+                }
                 _context.ImagenesPropiedad.RemoveRange(propiedad.Imagenes);
+            }
 
             _context.Propiedades.Remove(propiedad);
             await _context.SaveChangesAsync();
@@ -155,28 +197,49 @@ namespace InmobiliariaAPI.Controllers
             return Ok(new { mensaje = "Propiedad eliminada exitosamente" });
         }
 
-
+        // ============================================================
+        // POST: /api/propiedades/{id}/imagenes (subir imagen adicional)
+        // ============================================================
         [HttpPost("{id}/imagenes")]
         [Authorize(Roles = "Agente,Admin")]
-        public async Task<IActionResult> SubirImagen(int id, [FromBody] ImagenPropiedadDTO dto)
+        public async Task<IActionResult> SubirImagen(int id, IFormFile file)
         {
             var propiedad = await _context.Propiedades.FindAsync(id);
             if (propiedad == null) return NotFound();
 
+            if (file == null || file.Length == 0)
+                return BadRequest(new { mensaje = "No se envió ninguna imagen" });
+
+            var urlImagen = await _storageService.SubirImagenAsync(
+                file.OpenReadStream(),
+                file.FileName,
+                file.ContentType);
+
+            if (string.IsNullOrEmpty(urlImagen))
+                return BadRequest(new { mensaje = "Error al subir la imagen" });
+
             var imagen = new ImagenPropiedad
             {
-                UrlImagen = dto.UrlImagen,
-                Descripcion = dto.Descripcion,
-                EsPrincipal = dto.EsPrincipal,
+                UrlImagen = urlImagen,
+                Descripcion = file.FileName,
+                EsPrincipal = false,
                 IdPropiedad = id
             };
 
             _context.ImagenesPropiedad.Add(imagen);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mensaje = "Imagen subida exitosamente", id = imagen.Id });
+            return Ok(new
+            {
+                mensaje = "Imagen subida exitosamente",
+                id = imagen.Id,
+                url = urlImagen
+            });
         }
 
+        // ============================================================
+        // MÉTODO AUXILIAR: Convertir Propiedad a DTO
+        // ============================================================
         private PropiedadDetalleDTO MapToDetalleDTO(Propiedad p)
         {
             return new PropiedadDetalleDTO
