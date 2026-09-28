@@ -1,14 +1,14 @@
-﻿using Supabase;
-using Supabase.Storage;
+﻿using Supabase.Storage;
+using SupabaseClient = Supabase.Client;
 
 namespace InmobiliariaAPI.Services
 {
     public class StorageService
     {
-        private readonly Client _supabase;
+        private readonly SupabaseClient _supabase;
         private readonly string _bucket;
 
-        public StorageService(Client supabase, IConfiguration configuration)
+        public StorageService(SupabaseClient supabase, IConfiguration configuration)
         {
             _supabase = supabase;
             _bucket = configuration["Supabase:Bucket"] ?? "propiedades";
@@ -26,7 +26,7 @@ namespace InmobiliariaAPI.Services
                 var bytes = memoryStream.ToArray();
 
                 var bucket = _supabase.Storage.From(_bucket);
-                await bucket.Upload(bytes, nombreUnico, new FileOptions
+                await bucket.Upload(bytes, nombreUnico, new Supabase.Storage.FileOptions
                 {
                     ContentType = contentType
                 });
