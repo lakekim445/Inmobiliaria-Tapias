@@ -16,9 +16,6 @@ namespace InmobiliariaMVC.Controllers
             _apiService = apiService;
         }
 
-        // ============================================================
-        // DASHBOARD DEL AGENTE
-        // ============================================================
         public async Task<IActionResult> Index()
         {
             var usuarioId = ObtenerUsuarioId();
@@ -43,9 +40,6 @@ namespace InmobiliariaMVC.Controllers
             return View();
         }
 
-        // ============================================================
-        // MIS PROPIEDADES
-        // ============================================================
         public async Task<IActionResult> MisPropiedades()
         {
             var usuarioId = ObtenerUsuarioId();
@@ -56,9 +50,6 @@ namespace InmobiliariaMVC.Controllers
             return View(propiedades ?? new List<PropiedadResumenDTO>());
         }
 
-        // ============================================================
-        // CREAR PROPIEDAD (GET)
-        // ============================================================
         [HttpGet]
         public IActionResult CrearPropiedad()
         {
@@ -69,9 +60,7 @@ namespace InmobiliariaMVC.Controllers
             return View(model);
         }
 
-        // ============================================================
-        // CREAR PROPIEDAD (POST)
-        // ============================================================
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearPropiedad(PropiedadCreateViewModel model, List<IFormFile> imagenes)
@@ -114,9 +103,6 @@ namespace InmobiliariaMVC.Controllers
             return RedirectToAction("MisPropiedades");
         }
 
-        // ============================================================
-        // EDITAR PROPIEDAD (GET)
-        // ============================================================
         [HttpGet]
         public async Task<IActionResult> EditarPropiedad(int id)
         {
@@ -141,9 +127,7 @@ namespace InmobiliariaMVC.Controllers
             return View(model);
         }
 
-        // ============================================================
-        // EDITAR PROPIEDAD (POST)
-        // ============================================================
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarPropiedad(PropiedadCreateViewModel model)
@@ -164,8 +148,7 @@ namespace InmobiliariaMVC.Controllers
                     Habitaciones = model.Habitaciones,
                     Banos = model.Banos,
                     SuperficieM2 = model.SuperficieM2,
-                    IdAgente = model.IdAgente,
-                    Imagenes = new List<object>()
+                    IdAgente = model.IdAgente
                 });
 
             if (!resultado)
@@ -178,9 +161,6 @@ namespace InmobiliariaMVC.Controllers
             return RedirectToAction("MisPropiedades");
         }
 
-        // ============================================================
-        // ELIMINAR PROPIEDAD (POST)
-        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarPropiedad(int id)
@@ -195,9 +175,6 @@ namespace InmobiliariaMVC.Controllers
             return RedirectToAction("MisPropiedades");
         }
 
-        // ============================================================
-        // MÉTODO AUXILIAR
-        // ============================================================
         private int ObtenerUsuarioId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier);
