@@ -117,7 +117,6 @@ if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(supabaseKey))
         await supabaseClient.InitializeAsync();
 
         builder.Services.AddSingleton<Supabase.Client>(supabaseClient);
-        builder.Services.AddScoped<StorageService>();
 
         Console.WriteLine("✅ Supabase Storage configurado");
     }
@@ -130,6 +129,8 @@ else
 {
     Console.WriteLine("⚠️ Supabase NO configurado (falta Url o ApiKey)");
 }
+
+builder.Services.AddScoped<StorageService>();
 
 // ============================================================
 // PIPELINE

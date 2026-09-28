@@ -5,10 +5,10 @@ namespace InmobiliariaAPI.Services
 {
     public class StorageService
     {
-        private readonly SupabaseClient _supabase;
+        private readonly SupabaseClient? _supabase;
         private readonly string _bucket;
 
-        public StorageService(SupabaseClient supabase, IConfiguration configuration)
+        public StorageService(SupabaseClient? supabase, IConfiguration configuration)
         {
             _supabase = supabase;
             _bucket = configuration["Supabase:Bucket"] ?? "propiedades";
@@ -16,6 +16,11 @@ namespace InmobiliariaAPI.Services
 
         public async Task<string?> SubirImagenAsync(Stream stream, string nombreArchivo, string contentType)
         {
+            if (_supabase == null)
+            {
+                Console.WriteLine("⚠️ Supabase no configurado; la imagen se omite");
+                return null;
+            }
             try
             {
                 var extension = Path.GetExtension(nombreArchivo);
@@ -43,6 +48,11 @@ namespace InmobiliariaAPI.Services
 
         public async Task<bool> EliminarImagenAsync(string urlImagen)
         {
+            if (_supabase == null)
+            {
+                Console.WriteLine("⚠️ Supabase no configurado; no se puede eliminar la imagen");
+                return false;
+            }
             try
             {
                 var nombreArchivo = urlImagen.Split('/').Last();
