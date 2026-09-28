@@ -95,7 +95,25 @@ p, span, label, li, a {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        text-decoration: none;
     }
+
+        .navbar-custom .navbar-brand i {
+            color: #C1512F !important;
+            font-size: 1.7rem;
+        }
+
+        .navbar-custom .navbar-brand span {
+            color: #F2EBDD !important;
+        }
+
+        .navbar-custom .navbar-brand:hover span {
+            color: #F2EBDD !important;
+        }
+
+        .navbar-custom .navbar-brand:hover i {
+            color: #C1512F !important;
+        }
 
         .navbar-custom .navbar-brand:hover {
             color: #C1512F !important;
@@ -363,7 +381,10 @@ a {
    ============================================================ */
 .hero-section {
     position: relative;
-    background: linear-gradient(135deg, #3E2A1E 0%, #C1512F 100%);
+    background-image: url('/images/fondo.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     min-height: 520px;
     display: flex;
     align-items: center;
@@ -373,18 +394,18 @@ a {
     overflow: hidden;
 }
 
-    .hero-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('/images/hero-bg.jpg');
-        background-size: cover;
-        background-position: center;
-        opacity: 0.2;
-        z-index: 0;
+       .hero-section::before {
+       content: '';
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       background-image: url('/images/hero-bg.jpg');
+       background-size: cover;
+       background-position: center;
+       opacity: 0.2;
+       z-index: 0;
     }
 
 .hero-content {
@@ -911,3 +932,15 @@ a {
     color: #3E2A1E;
     font-weight: 500;
 }
+
+.logo-tapia {
+    display: flex !important;
+    align-items: center;
+    padding: 0 !important;
+}
+
+    .logo-tapia img {
+        width: 170px;
+        height: auto;
+        display: block;
+    }
