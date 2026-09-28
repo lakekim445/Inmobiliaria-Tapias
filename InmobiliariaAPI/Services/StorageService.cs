@@ -1,22 +1,24 @@
 ﻿using Supabase.Storage;
 using SupabaseClient = Supabase.Client;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InmobiliariaAPI.Services
 {
     public class StorageService
     {
-        private readonly SupabaseClient? _supabase;
+        private readonly IServiceProvider _serviceProvider;
         private readonly string _bucket;
 
-        public StorageService(SupabaseClient? supabase, IConfiguration configuration)
+        public StorageService(IServiceProvider serviceProvider, IConfiguration configuration)
         {
-            _supabase = supabase;
+            _serviceProvider = serviceProvider;
             _bucket = configuration["Supabase:Bucket"] ?? "propiedades";
         }
 
         public async Task<string?> SubirImagenAsync(Stream stream, string nombreArchivo, string contentType)
         {
-            if (_supabase == null)
+            var supabase = _serviceProvider.GetService<SupabaseClient>();
+            if (supabase == null)
             {
                 Console.WriteLine("⚠️ Supabase no configurado; la imagen se omite");
                 return null;
@@ -30,7 +32,7 @@ namespace InmobiliariaAPI.Services
                 await stream.CopyToAsync(memoryStream);
                 var bytes = memoryStream.ToArray();
 
-                var bucket = _supabase.Storage.From(_bucket);
+                var bucket = supabase.Storage.From(_bucket);
                 await bucket.Upload(bytes, nombreUnico, new Supabase.Storage.FileOptions
                 {
                     ContentType = contentType
@@ -48,7 +50,8 @@ namespace InmobiliariaAPI.Services
 
         public async Task<bool> EliminarImagenAsync(string urlImagen)
         {
-            if (_supabase == null)
+            var supabase = _serviceProvider.GetService<SupabaseClient>();
+            if (supabase == null)
             {
                 Console.WriteLine("⚠️ Supabase no configurado; no se puede eliminar la imagen");
                 return false;
@@ -56,7 +59,7 @@ namespace InmobiliariaAPI.Services
             try
             {
                 var nombreArchivo = urlImagen.Split('/').Last();
-                var bucket = _supabase.Storage.From(_bucket);
+                var bucket = supabase.Storage.From(_bucket);
                 await bucket.Remove(nombreArchivo);
                 return true;
             }
