@@ -1,15 +1,23 @@
 using System.Text;
 using InmobiliariaAPI.Data;
+using InmobiliariaAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Supabase;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ============================================================
+// 1. BASE DE DATOS
+// ============================================================
 builder.Services.AddDbContext<InmobiliariaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("InmobiliariaConnection")));
 
+// ============================================================
+// 2. CONTROLADORES + JSON
+// ============================================================
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -17,6 +25,9 @@ builder.Services.AddControllers()
             System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
+// ============================================================
+// 3. CORS
+// ============================================================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowMVC", policy =>
@@ -27,7 +38,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+// ============================================================
+// 4. JWT
+// ============================================================
 var jwtKey = builder.Configuration["Jwt:Key"];
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -46,7 +59,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-
+// ============================================================
+// 5. SWAGGER
+// ============================================================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -82,8 +97,37 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-var app = builder.Build();
+// ============================================================
+// 6. CONFIGURACIÓN DE SUPABASE STORAGE
+// ============================================================
+var supabaseUrl = builder.Configuration["Supabase:Url"];
+var supabaseKey = builder.Configuration["Supabase:ApiKey"];
 
+if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(supabaseKey))
+{
+    var supabaseOptions = new Supabase.SupabaseOptions
+    {
+        AutoRefreshToken = true,
+        AutoConnectRealtime = true
+    };
+
+    var supabaseClient = new Supabase.Client(supabaseUrl, supabaseKey, supabaseOptions);
+    await supabaseClient.InitializeAsync();
+
+    builder.Services.AddSingleton<Supabase.Client>(supabaseClient);
+    builder.Services.AddScoped<StorageService>();
+
+    Console.WriteLine("✅ Supabase Storage configurado");
+}
+else
+{
+    Console.WriteLine("⚠️ Supabase NO configurado (falta Url o ApiKey)");
+}
+
+// ============================================================
+// PIPELINE
+// ============================================================
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
