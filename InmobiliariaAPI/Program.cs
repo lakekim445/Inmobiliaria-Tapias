@@ -105,19 +105,26 @@ var supabaseKey = builder.Configuration["Supabase:ApiKey"];
 
 if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(supabaseKey))
 {
-    var supabaseOptions = new Supabase.SupabaseOptions
+    try
     {
-        AutoRefreshToken = true,
-        AutoConnectRealtime = true
-    };
+        var supabaseOptions = new Supabase.SupabaseOptions
+        {
+            AutoRefreshToken = true,
+            AutoConnectRealtime = true
+        };
 
-    var supabaseClient = new Supabase.Client(supabaseUrl, supabaseKey, supabaseOptions);
-    await supabaseClient.InitializeAsync();
+        var supabaseClient = new Supabase.Client(supabaseUrl, supabaseKey, supabaseOptions);
+        await supabaseClient.InitializeAsync();
 
-    builder.Services.AddSingleton<Supabase.Client>(supabaseClient);
-    builder.Services.AddScoped<StorageService>();
+        builder.Services.AddSingleton<Supabase.Client>(supabaseClient);
+        builder.Services.AddScoped<StorageService>();
 
-    Console.WriteLine("✅ Supabase Storage configurado");
+        Console.WriteLine("✅ Supabase Storage configurado");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ Error al configurar Supabase: {ex.Message}");
+    }
 }
 else
 {
