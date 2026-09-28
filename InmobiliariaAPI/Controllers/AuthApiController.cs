@@ -37,6 +37,7 @@ namespace InmobiliariaAPI.Controllers
 
             return Ok(new LoginResponseDTO
             {
+                Id = usuario.Id,
                 Token = token,
                 NombreCompleto = usuario.NombreCompleto ?? "",
                 Email = usuario.Email ?? "",

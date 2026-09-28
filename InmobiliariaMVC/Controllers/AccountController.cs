@@ -46,7 +46,8 @@ namespace InmobiliariaMVC.Controllers
             {
                 new Claim(ClaimTypes.Name, respuesta.NombreCompleto),
                 new Claim(ClaimTypes.Email, respuesta.Email),
-                new Claim(ClaimTypes.Role, respuesta.Rol)
+                new Claim(ClaimTypes.Role, respuesta.Rol),
+                new Claim(ClaimTypes.NameIdentifier, respuesta.Id.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(
