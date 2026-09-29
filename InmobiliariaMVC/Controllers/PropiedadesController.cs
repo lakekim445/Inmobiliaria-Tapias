@@ -1,16 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TapiaSolution.Shared.DTOs;
-using TapiaSolution.Web.Services;
+﻿using InmobiliariaMVC.Models;
+using InmobiliariaMVC.Services;
+using Microsoft.AspNetCore.Mvc;
 
-namespace TapiaSolution.Web.Controllers
+namespace InmobiliariaMVC.Controllers
 {
     // ⚠️ SIN [Authorize] → catálogo público, cualquiera puede verlo
     public class PropiedadesController : Controller
     {
-        private readonly ApiClient _api;
-        public PropiedadesController(ApiClient api) => _api = api;
+        private readonly ApiService _apiService;
 
+        public PropiedadesController(ApiService apiService)
+        {
+            _apiService = apiService;
+        }
+
+        // ============================================================
         // 📋 CATÁLOGO — con filtros por zona, tipo y precio
+        // ============================================================
         public async Task<IActionResult> Index(
             string? tipo,
             string? zona,
@@ -18,23 +24,48 @@ namespace TapiaSolution.Web.Controllers
             decimal? precioMax,
             string? orden)
         {
-            // Construir query string hacia la API
-            var query = new List<string>();
-            if (!string.IsNullOrEmpty(tipo)) query.Add($"tipo={tipo}");
-            if (!string.IsNullOrEmpty(zona)) query.Add($"zona={Uri.EscapeDataString(zona)}");
-            if (precioMin.HasValue) query.Add($"precioMin={precioMin}");
-            if (precioMax.HasValue) query.Add($"precioMax={precioMax}");
+            var todas = await _apiService.GetAsync<List<PropiedadResumenDTO>>(
+                "api/PropiedadesPublicas") ?? new List<PropiedadResumenDTO>();
 
-            var url = "Propiedades" + (query.Any() ? "?" + string.Join("&", query) : "");
-            var propiedades = await _api.GetAsync<List<PropiedadDto>>(url) ?? new();
+            // Listas para los filtros (sobre el catálogo completo)
+            ViewBag.Zonas = todas
+                .Select(p => p.Zona)
+                .Where(z => !string.IsNullOrEmpty(z))
+                .Distinct()
+                .OrderBy(z => z)
+                .ToList();
 
-            // Ordenamiento local (simple)
-            propiedades = orden switch
+            ViewBag.Tipos = todas
+                .Select(p => p.Tipo)
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Distinct()
+                .OrderBy(t => t)
+                .ToList();
+
+            var propiedades = todas.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(tipo))
+                propiedades = propiedades.Where(p =>
+                    p.Tipo.Equals(tipo, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrEmpty(zona))
+                propiedades = propiedades.Where(p =>
+                    (p.Zona ?? "").Equals(zona, StringComparison.OrdinalIgnoreCase));
+
+            if (precioMin.HasValue)
+                propiedades = propiedades.Where(p => p.Precio >= precioMin.Value);
+
+            if (precioMax.HasValue)
+                propiedades = propiedades.Where(p => p.Precio <= precioMax.Value);
+
+            var resultado = propiedades.ToList();
+
+            resultado = orden switch
             {
-                "precio_asc" => propiedades.OrderBy(p => p.Precio).ToList(),
-                "precio_desc" => propiedades.OrderByDescending(p => p.Precio).ToList(),
-                "recientes" => propiedades.OrderByDescending(p => p.Id).ToList(),
-                _ => propiedades
+                "precio_asc" => resultado.OrderBy(p => p.Precio).ToList(),
+                "precio_desc" => resultado.OrderByDescending(p => p.Precio).ToList(),
+                "recientes" => resultado.OrderByDescending(p => p.FechaPublicacion).ToList(),
+                _ => resultado
             };
 
             // Guardar filtros para que la vista los muestre seleccionados
@@ -43,20 +74,20 @@ namespace TapiaSolution.Web.Controllers
             ViewBag.PrecioMin = precioMin;
             ViewBag.PrecioMax = precioMax;
             ViewBag.Orden = orden;
-            ViewBag.Total = propiedades.Count;
+            ViewBag.Total = resultado.Count;
 
-            return View(propiedades);
+            return View(resultado);
         }
 
+        // ============================================================
         // 🔍 DETALLE — con galería completa
+        // ============================================================
         public async Task<IActionResult> Detalle(int id)
         {
-            var propiedad = await _api.GetAsync<PropiedadDto>($"Propiedades/{id}");
-            if (propiedad == null) return NotFound();
+            var propiedad = await _apiService.GetAsync<PropiedadDetalleDTO>(
+                $"api/PropiedadesPublicas/{id}");
 
-            // Guardar si el usuario está logueado (para mostrar botón reservar)
-            ViewBag.Logueado = !string.IsNullOrEmpty(HttpContext.Session.GetString("JwtToken"));
-            ViewBag.Rol = HttpContext.Session.GetString("Rol");
+            if (propiedad == null) return NotFound();
 
             return View(propiedad);
         }

@@ -1,13 +1,86 @@
 ﻿@{
-    ViewData["Title"] = "Panel Cliente";
+    ViewData["Title"] = "Panel de Cliente";
 }
 
-<div class="container mt-4">
-    <h1>Panel de Cliente</h1>
-    <p>Bienvenido, <strong>@User.Identity?.Name</strong></p>
-    <p>Rol: <strong>@User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value</strong></p>
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mi Panel</h1>
+        <a asp-controller="Propiedades" asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-house-door"></i> Ver Catálogo
+        </a>
+    </div>
 
-    <form asp-controller="Account" asp-action="Logout" method="post">
-        <button type="submit" class="btn btn-primary">Cerrar Sesión</button>
-    </form>
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert-success-custom">
+            <i class="bi bi-check-circle"></i> @TempData["MensajeExito"]
+        </div>
+    }
+
+    <p>Bienvenido, <strong>@User.Identity?.Name</strong>. Aquí puedes gestionar tus visitas agendadas.</p>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 text-center" style="box-shadow:none;">
+                <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:2.2rem;color:#C1512F;line-height:1;">@ViewBag.TotalCitas</div>
+                <div class="mt-2" style="color:#3E2A1E;font-weight:600;">Visitas agendadas</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center" style="box-shadow:none;">
+                <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:2.2rem;color:#C1512F;line-height:1;">@ViewBag.Pendientes</div>
+                <div class="mt-2" style="color:#3E2A1E;font-weight:600;">Pendientes</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center" style="box-shadow:none;">
+                <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:2.2rem;color:#C1512F;line-height:1;">@ViewBag.Confirmadas</div>
+                <div class="mt-2" style="color:#3E2A1E;font-weight:600;">Confirmadas</div>
+            </div>
+        </div>
+    </div>
+
+    @* ===== ÚLTIMAS CITAS ===== *@
+    <div class="card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Tus últimas visitas</h5>
+            <a asp-action="MisCitas" class="btn btn-secondary btn-sm">Ver todas</a>
+        </div>
+
+        @if (ViewBag.UltimasCitas == null || ((List<InmobiliariaMVC.Models.CitaResumenDTO>)ViewBag.UltimasCitas).Count == 0)
+        {
+            <p class="text-muted mb-0">
+                Aún no tienes visitas agendadas.
+                <a asp-controller="Propiedades" asp-action="Index">Explora el catálogo</a> y reserva la primera.
+            </p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Propiedad</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cita in (List<InmobiliariaMVC.Models.CitaResumenDTO>)ViewBag.UltimasCitas)
+                        {
+                            <tr>
+                                <td>@cita.FechaCita.ToString("dd/MM/yyyy")</td>
+                                <td>@cita.HoraInicio.ToString(@"hh\:mm")</td>
+                                <td>@cita.PropiedadTipo en @cita.PropiedadZona</td>
+                                <td>
+                                    <span class="badge-@(cita.EstadoNombre == "Pendiente" ? "disponible" : cita.EstadoNombre == "Confirmada" ? "reservado" : "vendido")">@cita.EstadoNombre</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
 </div>

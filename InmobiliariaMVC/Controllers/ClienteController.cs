@@ -1,50 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TapiaSolution.Shared.DTOs;
-using TapiaSolution.Web.Services;
+﻿using InmobiliariaMVC.Models;
+using InmobiliariaMVC.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace TapiaSolution.Web.Controllers
+namespace InmobiliariaMVC.Controllers
 {
-    // ⚠️ SIN [Authorize] a nivel clase, porque el catálogo es público.
-    // Pero las acciones internas verifican sesión manualmente.
+    // ✅ Solo clientes logueados pueden entrar al panel y reservar
+    [Authorize(Roles = "Cliente")]
     public class ClienteController : Controller
     {
-        private readonly ApiClient _api;
-        public ClienteController(ApiClient api) => _api = api;
+        private readonly ApiService _apiService;
 
-        // 🔐 Helpers de sesión
-        private bool EstaLogueado() =>
-            !string.IsNullOrEmpty(HttpContext.Session.GetString("JwtToken"));
-
-        private string? Rol() => HttpContext.Session.GetString("Rol");
-
-        private string? Nombre() => HttpContext.Session.GetString("Nombre");
-
-        private IActionResult RedirigirLogin(string returnUrl) =>
-            RedirectToAction("Login", "Account", new { returnUrl });
+        public ClienteController(ApiService apiService)
+        {
+            _apiService = apiService;
+        }
 
         // ============================================================
         // 🏠 DASHBOARD DEL CLIENTE
         // ============================================================
         public async Task<IActionResult> Index()
         {
-            if (!EstaLogueado())
-                return RedirigirLogin(Url.Action("Index", "Cliente")!);
+            var citas = await _apiService.GetAsync<List<CitaResumenDTO>>(
+                "api/ClienteApi/citas") ?? new List<CitaResumenDTO>();
 
-            if (Rol() != "Cliente")
-                return RedirectToAction("Index", "Home");
-
-            // Citas del cliente
-            var citas = await _api.GetAsync<List<CitaDto>>("Citas/mis-citas") ?? new();
-
-            // Resumen
-            ViewBag.Nombre = Nombre();
             ViewBag.TotalCitas = citas.Count;
-            ViewBag.CitasPendientes = citas.Count(c => c.Estado == "Pendiente");
-            ViewBag.CitasConfirmadas = citas.Count(c => c.Estado == "Confirmada");
+            ViewBag.Pendientes = citas.Count(c => c.EstadoNombre == "Pendiente");
+            ViewBag.Confirmadas = citas.Count(c => c.EstadoNombre == "Confirmada");
 
-            // Últimas 3 citas para mostrar en el dashboard
             ViewBag.UltimasCitas = citas
-                .OrderByDescending(c => c.FechaHora)
+                .OrderByDescending(c => c.FechaCita)
                 .Take(3)
                 .ToList();
 
@@ -56,16 +41,10 @@ namespace TapiaSolution.Web.Controllers
         // ============================================================
         public async Task<IActionResult> MisCitas()
         {
-            if (!EstaLogueado())
-                return RedirigirLogin(Url.Action("MisCitas", "Cliente")!);
+            var citas = await _apiService.GetAsync<List<CitaResumenDTO>>(
+                "api/ClienteApi/citas") ?? new List<CitaResumenDTO>();
 
-            if (Rol() != "Cliente")
-                return RedirectToAction("Index", "Home");
-
-            var citas = await _api.GetAsync<List<CitaDto>>("Citas/mis-citas") ?? new();
-
-            // Ordenar por fecha descendente
-            citas = citas.OrderByDescending(c => c.FechaHora).ToList();
+            citas = citas.OrderByDescending(c => c.FechaCita).ToList();
 
             return View(citas);
         }
@@ -74,23 +53,30 @@ namespace TapiaSolution.Web.Controllers
         // 📅 RESERVAR VISITA (GET)
         // ============================================================
         [HttpGet]
-        public async Task<IActionResult> Reservar(int propiedadId)
+        public async Task<IActionResult> Reservar(int id)
         {
-            if (propiedadId <= 0)
+            if (id <= 0)
                 return RedirectToAction("Index", "Propiedades");
 
-            if (!EstaLogueado())
-                return RedirigirLogin(Url.Action("Reservar", "Cliente", new { propiedadId })!);
+            var propiedad = await _apiService.GetAsync<PropiedadDetalleDTO>(
+                $"api/PropiedadesPublicas/{id}");
 
-            if (Rol() != "Cliente")
-                return RedirectToAction("Index", "Home");
-
-            // Cargar la propiedad para mostrar sus datos en el formulario
-            var propiedad = await _api.GetAsync<PropiedadDto>($"Propiedades/{propiedadId}");
             if (propiedad == null) return NotFound();
 
-            ViewBag.Propiedad = propiedad;
-            return View();
+            var model = new ReservaViewModel
+            {
+                IdPropiedad = propiedad.Id,
+                Fecha = DateTime.Today.AddDays(1),
+                HoraInicio = new TimeSpan(9, 0, 0),
+                Tipo = propiedad.Tipo,
+                Zona = propiedad.Zona,
+                Direccion = propiedad.Direccion,
+                Precio = propiedad.Precio,
+                Moneda = propiedad.Moneda,
+                UrlImagen = propiedad.Imagenes?.FirstOrDefault()?.UrlImagen
+            };
+
+            return View(model);
         }
 
         // ============================================================
@@ -98,41 +84,43 @@ namespace TapiaSolution.Web.Controllers
         // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reservar(CrearCitaDto dto)
+        public async Task<IActionResult> Reservar(ReservaViewModel model)
         {
-            if (!EstaLogueado())
-                return RedirigirLogin(Url.Action("Reservar", "Cliente", new { propiedadId = dto.PropiedadId })!);
+            if (model.IdPropiedad <= 0)
+                return RedirectToAction("Index", "Propiedades");
 
-            if (Rol() != "Cliente")
-                return RedirectToAction("Index", "Home");
+            if (model.Fecha < DateTime.Today)
+                ModelState.AddModelError("", "La fecha debe ser de hoy en adelante.");
 
-            // Validar fecha futura
-            if (dto.FechaHora <= DateTime.Now)
-            {
-                ModelState.AddModelError("", "La fecha y hora deben ser en el futuro.");
-            }
+            if (model.HoraInicio <= TimeSpan.Zero)
+                ModelState.AddModelError("", "Indica una hora válida para la visita.");
+
+            if (model.HoraInicio >= new TimeSpan(23, 0, 0))
+                ModelState.AddModelError("", "La hora debe ser antes de las 23:00.");
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Propiedad = await _api.GetAsync<PropiedadDto>($"Propiedades/{dto.PropiedadId}");
-                return View(dto);
+                await CargarDatosPropiedad(model);
+                return View(model);
             }
 
-            // Llamar a la API
-            var resp = await _api.PostAsync("Citas", dto);
-
-            if (!resp.IsSuccessStatusCode)
+            var resultado = await _apiService.PostAsync<object>("api/ClienteApi/citas", new
             {
-                var error = await resp.Content.ReadAsStringAsync();
-                ViewBag.Error = string.IsNullOrWhiteSpace(error)
-                    ? "No se pudo reservar la cita. Intenta con otro horario."
-                    : error;
+                model.IdPropiedad,
+                model.Fecha,
+                model.HoraInicio,
+                HoraFin = model.HoraInicio.Add(TimeSpan.FromHours(1)),
+                model.Observaciones
+            });
 
-                ViewBag.Propiedad = await _api.GetAsync<PropiedadDto>($"Propiedades/{dto.PropiedadId}");
-                return View(dto);
+            if (resultado == null)
+            {
+                ModelState.AddModelError("", "No se pudo reservar la visita. Intenta con otro horario.");
+                await CargarDatosPropiedad(model);
+                return View(model);
             }
 
-            TempData["Ok"] = "✅ ¡Cita reservada! El agente que publicó la propiedad se contactará contigo.";
+            TempData["MensajeExito"] = "¡Visita reservada! El agente se contactará contigo.";
             return RedirectToAction("MisCitas");
         }
 
@@ -143,20 +131,32 @@ namespace TapiaSolution.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancelar(int id)
         {
-            if (!EstaLogueado())
-                return RedirigirLogin(Url.Action("MisCitas", "Cliente")!);
+            var exito = await _apiService.PutAsync($"api/ClienteApi/citas/{id}/cancelar", new { });
 
-            if (Rol() != "Cliente")
-                return RedirectToAction("Index", "Home");
-
-            // La API expone PUT /api/Citas/{id}/cancelar
-            var resp = await _api.PutAsync($"Citas/{id}/cancelar", new { });
-
-            TempData["Ok"] = resp.IsSuccessStatusCode
-                ? "✅ Cita cancelada correctamente."
-                : "❌ No se pudo cancelar la cita.";
+            if (exito)
+                TempData["MensajeExito"] = "Cita cancelada correctamente.";
+            else
+                TempData["MensajeError"] = "No se pudo cancelar la cita.";
 
             return RedirectToAction("MisCitas");
+        }
+
+        // ============================================================
+        // MÉTODO AUXILIAR: rellenar datos de la propiedad en el modelo
+        // ============================================================
+        private async Task CargarDatosPropiedad(ReservaViewModel model)
+        {
+            var propiedad = await _apiService.GetAsync<PropiedadDetalleDTO>(
+                $"api/PropiedadesPublicas/{model.IdPropiedad}");
+
+            if (propiedad == null) return;
+
+            model.Tipo = propiedad.Tipo;
+            model.Zona = propiedad.Zona;
+            model.Direccion = propiedad.Direccion;
+            model.Precio = propiedad.Precio;
+            model.Moneda = propiedad.Moneda;
+            model.UrlImagen = propiedad.Imagenes?.FirstOrDefault()?.UrlImagen;
         }
     }
 }

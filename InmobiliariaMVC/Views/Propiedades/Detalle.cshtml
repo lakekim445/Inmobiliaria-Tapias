@@ -1,5 +1,132 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model InmobiliariaMVC.Models.PropiedadDetalleDTO
+
 @{
+    ViewData["Title"] = $"{Model.Tipo} en {Model.Zona}";
 }
+
+@functions {
+    string ObtenerImagenPrincipal()
+    {
+        if (Model.Imagenes == null || Model.Imagenes.Count == 0) return "";
+        var principal = Model.Imagenes.FirstOrDefault(i => i.EsPrincipal);
+        return principal?.UrlImagen ?? Model.Imagenes[0].UrlImagen;
+    }
+}
+
+<div class="container-main">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Propiedades" asp-action="Index">Catálogo</a></li>
+            <li class="breadcrumb-item active">@Model.Tipo en @Model.Zona</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        @* ===== GALERÍA ===== *@
+        <div class="col-lg-7">
+            <div class="card">
+                @if (!string.IsNullOrEmpty(ObtenerImagenPrincipal()))
+                {
+                    <img id="imagenPrincipal" src="@ObtenerImagenPrincipal()"
+                         alt="@Model.Tipo en @Model.Zona"
+                         class="img-fluid rounded" style="width:100%;height:420px;object-fit:cover;" />
+                }
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-center"
+                         style="height:420px;background-color:var(--warm-ivory);border-radius:8px;">
+                        <i class="bi bi-house-door" style="font-size:5rem;color:var(--warm-taupe);"></i>
+                    </div>
+                }
+
+                @if (Model.Imagenes != null && Model.Imagenes.Count > 1)
+                {
+                    <div class="d-flex gap-2 mt-3" style="overflow-x:auto;">
+                        @foreach (var img in Model.Imagenes)
+                        {
+                            <img src="@img.UrlImagen"
+                                 class="img-thumbnail" style="height:80px;width:110px;object-fit:cover;cursor:pointer;"
+                                 onclick="document.getElementById('imagenPrincipal').src = this.src;" />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* ===== DATOS DE LA PROPIEDAD ===== *@
+        <div class="col-lg-5">
+            <div class="card h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h1 class="card-title mb-0">@Model.Tipo</h1>
+                    <span class="badge-disponible">@Model.Estado</span>
+                </div>
+
+                <p class="text-muted mb-1">
+                    <i class="bi bi-geo-alt"></i> @Model.Zona — @Model.Direccion
+                </p>
+
+                <p class="mb-3" style="font-weight:700;color:var(--walnut-brown);font-size:1.6rem;">
+                    @Model.Moneda @Model.Precio.ToString("N2")
+                </p>
+
+                @if (!string.IsNullOrEmpty(Model.TipoOperacion))
+                {
+                    <p class="mb-2">
+                        <span class="badge-vendido">@Model.TipoOperacion</span>
+                    </p>
+                }
+
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <td><i class="bi bi-rulers"></i> Superficie</td>
+                            <td class="text-end"><strong>@(Model.SuperficieM2?.ToString("N0") ?? "-") m²</strong></td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-door-closed"></i> Habitaciones</td>
+                            <td class="text-end"><strong>@Model.Habitaciones</strong></td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-droplet-half"></i> Baños</td>
+                            <td class="text-end"><strong>@Model.Banos</strong></td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-person-badge"></i> Agente responsable</td>
+                            <td class="text-end"><strong>@(Model.NombreAgente ?? "-")</strong></td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-calendar3"></i> Publicado</td>
+                            <td class="text-end"><strong>@Model.FechaPublicacion.ToString("dd/MM/yyyy")</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                @if (!string.IsNullOrEmpty(Model.Descripcion))
+                {
+                    <p class="card-text">@Model.Descripcion</p>
+                }
+
+                <div class="mt-auto pt-3">
+                    @if (User.IsInRole("Cliente"))
+                    {
+                        <a asp-controller="Cliente" asp-action="Reservar" asp-route-id="@Model.Id"
+                           class="btn btn-primary w-100">
+                            <i class="bi bi-calendar-check"></i> Reservar Visita
+                        </a>
+                    }
+                    else if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <p class="text-center text-muted mb-0">La reserva de visitas está disponible para clientes registrados.</p>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión para reservar
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

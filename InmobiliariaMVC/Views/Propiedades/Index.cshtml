@@ -1,5 +1,130 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<InmobiliariaMVC.Models.PropiedadResumenDTO>
+
 @{
+    ViewData["Title"] = "Catálogo de Propiedades";
 }
+
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Catálogo de Propiedades</h1>
+        <span class="text-muted">@ViewBag.Total propiedades en @(string.IsNullOrEmpty(ViewBag.Zona) ? "todas las zonas" : ViewBag.Zona)</span>
+    </div>
+
+    @* ===== FILTROS ===== *@
+    <form method="get" class="card mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Tipo</label>
+                <select name="tipo" class="form-control">
+                    <option value="">Todos</option>
+                    @foreach (var t in ViewBag.Tipos ?? new List<string>())
+                    {
+                        <option value="@t" selected="@(ViewBag.Tipo == t)">@t</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Zona</label>
+                <select name="zona" class="form-control">
+                    <option value="">Todas</option>
+                    @foreach (var z in ViewBag.Zonas ?? new List<string>())
+                    {
+                        <option value="@z" selected="@(ViewBag.Zona == z)">@z</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Precio mín.</label>
+                <input type="number" name="precioMin" class="form-control"
+                       value="@ViewBag.PrecioMin" min="0" step="0.01" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Precio máx.</label>
+                <input type="number" name="precioMax" class="form-control"
+                       value="@ViewBag.PrecioMax" min="0" step="0.01" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Orden</label>
+                <select name="orden" class="form-control">
+                    <option value="">Defecto</option>
+                    <option value="precio_asc" selected="@(ViewBag.Orden == "precio_asc")">Precio: menor a mayor</option>
+                    <option value="precio_desc" selected="@(ViewBag.Orden == "precio_desc")">Precio: mayor a menor</option>
+                    <option value="recientes" selected="@(ViewBag.Orden == "recientes")">Más recientes</option>
+                </select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+                <a asp-action="Index" class="btn btn-outline-primary">Limpiar</a>
+            </div>
+        </div>
+    </form>
+
+    @* ===== TARJETAS ===== *@
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="card text-center py-5">
+            <i class="bi bi-search" style="font-size:2.5rem;color:var(--warm-taupe);"></i>
+            <p class="mt-3 mb-0">No hay propiedades que coincidan con los filtros.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var prop in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 d-flex flex-column">
+                        @if (!string.IsNullOrEmpty(prop.UrlImagenPrincipal))
+                        {
+                            <img src="@prop.UrlImagenPrincipal" alt="@prop.Tipo en @prop.Zona"
+                                 class="img-fluid rounded" style="height:220px;width:100%;object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="height:220px;background-color:var(--warm-ivory);border-radius:8px;">
+                                <i class="bi bi-house-door" style="font-size:3.5rem;color:var(--warm-taupe);"></i>
+                            </div>
+                        }
+
+                        <div class="flex-grow-1 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mt-3">
+                                <h5 class="card-title mb-0">@prop.Tipo</h5>
+                                <span class="badge-disponible">@prop.Estado</span>
+                            </div>
+                            <p class="text-muted mb-1">
+                                <i class="bi bi-geo-alt"></i> @prop.Zona
+                            </p>
+                            <p class="card-text mb-2">@prop.Direccion</p>
+
+                            <div class="d-flex flex-wrap gap-3 text-muted mb-2">
+                                <span><i class="bi bi-rulers"></i> @(prop.SuperficieM2?.ToString("N0") ?? "-") m²</span>
+                                <span><i class="bi bi-door-closed"></i> @prop.Habitaciones </span>
+                                <span><i class="bi bi-droplet-half"></i> @prop.Banos</span>
+                            </div>
+
+                            <p class="mb-2" style="font-weight:700;color:var(--walnut-brown);font-size:1.15rem;">
+                                @prop.Moneda @prop.Precio.ToString("N2")
+                            </p>
+
+                            @if (!string.IsNullOrEmpty(prop.TipoOperacion))
+                            {
+                                <span class="badge-vendido align-self-start mb-2" style="font-size:0.8rem;">
+                                    @prop.TipoOperacion
+                                </span>
+                            }
+
+                            <div class="mt-auto">
+                                <a asp-action="Detalle" asp-route-id="@prop.Id" class="btn btn-primary w-100">
+                                    <i class="bi bi-eye"></i> Ver Detalle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
