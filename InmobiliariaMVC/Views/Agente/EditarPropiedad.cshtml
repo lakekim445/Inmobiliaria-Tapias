@@ -1,0 +1,148 @@
+﻿@model InmobiliariaMVC.Models.PropiedadEditViewModel
+
+@{
+    ViewData["Title"] = "Editar Propiedad";
+}
+
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Editar Propiedad</h1>
+        <a asp-action="MisPropiedades" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card form-card" style="max-width: 800px;">
+        <form asp-action="EditarPropiedad" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="IdAgente" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Tipo" class="form-label">
+                        <i class="bi bi-house-door"></i> Tipo de Propiedad
+                    </label>
+                    <select asp-for="Tipo" class="form-control">
+                        <option value="Casa">Casa</option>
+                        <option value="Departamento">Departamento</option>
+                        <option value="Terreno">Terreno</option>
+                    </select>
+                    <span asp-validation-for="Tipo" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Moneda" class="form-label">
+                        <i class="bi bi-currency-dollar"></i> Moneda
+                    </label>
+                    <select asp-for="Moneda" class="form-control">
+                        <option value="USD">USD</option>
+                        <option value="Bs">Bs</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Precio" class="form-label">
+                    <i class="bi bi-cash"></i> Precio
+                </label>
+                <input asp-for="Precio" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Zona" class="form-label">
+                    <i class="bi bi-geo-alt"></i> Zona / Barrio
+                </label>
+                <input asp-for="Zona" class="form-control" />
+                <span asp-validation-for="Zona" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Direccion" class="form-label">
+                    <i class="bi bi-pin-map"></i> Dirección
+                </label>
+                <input asp-for="Direccion" class="form-control" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Descripcion" class="form-label">
+                    <i class="bi bi-card-text"></i> Descripción
+                </label>
+                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Habitaciones" class="form-label">
+                        <i class="bi bi-door-closed"></i> Habitaciones
+                    </label>
+                    <input asp-for="Habitaciones" type="number" class="form-control" min="0" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Banos" class="form-label">
+                        <i class="bi bi-droplet"></i> Baños
+                    </label>
+                    <input asp-for="Banos" type="number" class="form-control" min="0" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="SuperficieM2" class="form-label">
+                        <i class="bi bi-rulers"></i> Superficie (m²)
+                    </label>
+                    <input asp-for="SuperficieM2" type="number" step="0.01" class="form-control" min="0" />
+                </div>
+            </div>
+
+            <!-- 🆕 IMÁGENES EXISTENTES -->
+            @if (Model.Imagenes != null && Model.Imagenes.Any())
+            {
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-images"></i> Imágenes Actuales
+                    </label>
+                    <div class="row g-2">
+                        @foreach (var img in Model.Imagenes)
+                        {
+                            <div class="col-3">
+                                <div style="position:relative;">
+                                    <img src="@img.UrlImagen" alt="Imagen"
+                                         style="width:100%; height:100px; object-fit:cover; border-radius:8px; border:1px solid #B3A48F;" />
+                                    @if (img.EsPrincipal)
+                                    {
+                                        <span style="position:absolute; top:5px; left:5px; background:#6B6B43; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px;">
+                                            Principal
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <small class="text-muted">Estas son las imágenes actuales de la propiedad.</small>
+                </div>
+            }
+            else
+            {
+                <div class="alert-info-custom mb-3">
+                    <i class="bi bi-info-circle"></i> Esta propiedad no tiene imágenes todavía.
+                </div>
+            }
+
+            <!-- 🆕 SUBIR NUEVAS IMÁGENES -->
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="bi bi-plus-circle"></i> Agregar Nuevas Imágenes
+                </label>
+                <input type="file" name="nuevasImagenes" multiple accept="image/*" class="form-control" />
+                <small class="text-muted">Las imágenes nuevas se agregarán a las existentes.</small>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="MisPropiedades" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -22,7 +22,6 @@ namespace InmobiliariaMVC.Controllers
         public async Task<IActionResult> Index()
         {
             var usuarioId = ObtenerUsuarioId();
-            Console.WriteLine($"🔍 [Index] UsuarioId: {usuarioId}");
 
             var propiedades = await _apiService.GetAsync<List<PropiedadResumenDTO>>(
                 $"api/PropiedadesApi/agente/{usuarioId}");
@@ -50,7 +49,6 @@ namespace InmobiliariaMVC.Controllers
         public async Task<IActionResult> MisPropiedades()
         {
             var usuarioId = ObtenerUsuarioId();
-            Console.WriteLine($"🔍 [MisPropiedades] UsuarioId: {usuarioId}");
 
             var propiedades = await _apiService.GetAsync<List<PropiedadResumenDTO>>(
                 $"api/PropiedadesApi/agente/{usuarioId}");
@@ -68,7 +66,6 @@ namespace InmobiliariaMVC.Controllers
             {
                 IdAgente = ObtenerUsuarioId()
             };
-            Console.WriteLine($"🔍 [CrearPropiedad GET] IdAgente: {model.IdAgente}");
             return View(model);
         }
 
@@ -79,29 +76,10 @@ namespace InmobiliariaMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearPropiedad(PropiedadCreateViewModel model, List<IFormFile> imagenes)
         {
-            Console.WriteLine("=================================================");
-            Console.WriteLine("🚀 [CrearPropiedad POST] INICIANDO");
-            Console.WriteLine($"🔍 ModelState.IsValid: {ModelState.IsValid}");
-
-            if (!ModelState.IsValid)
-            {
-                Console.WriteLine("❌ ModelState NO es válido:");
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine($"   - {error.ErrorMessage}");
-                }
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
 
             model.IdAgente = ObtenerUsuarioId();
-            Console.WriteLine($"🔍 IdAgente obtenido: {model.IdAgente}");
-            Console.WriteLine($"🔍 Tipo: {model.Tipo}");
-            Console.WriteLine($"🔍 Precio: {model.Precio}");
-            Console.WriteLine($"🔍 Zona: {model.Zona}");
-            Console.WriteLine($"🔍 Dirección: {model.Direccion}");
-            Console.WriteLine($"🔍 Imágenes: {imagenes?.Count ?? 0}");
 
-            // Crear el multipart form data
             var content = new MultipartFormDataContent();
             content.Add(new StringContent(model.Tipo ?? ""), "Tipo");
             content.Add(new StringContent(model.Precio.ToString()), "Precio");
@@ -118,30 +96,19 @@ namespace InmobiliariaMVC.Controllers
             {
                 foreach (var file in imagenes)
                 {
-                    Console.WriteLine($"📎 Agregando imagen: {file.FileName} ({file.Length} bytes)");
                     var streamContent = new StreamContent(file.OpenReadStream());
                     streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
                     content.Add(streamContent, "files", file.FileName);
                 }
             }
-            else
-            {
-                Console.WriteLine("⚠️ No se enviaron imágenes");
-            }
 
-            Console.WriteLine("📤 Enviando POST a la API...");
             var resultado = await _apiService.PostFormDataAsync<object>("api/PropiedadesApi", content);
-
-            Console.WriteLine($"📥 Resultado: {(resultado == null ? "NULL (error)" : "OK")}");
 
             if (resultado == null)
             {
-                ModelState.AddModelError("", "❌ Error al crear la propiedad. Revisa la ventana Salida de Visual Studio.");
+                ModelState.AddModelError("", "Error al crear la propiedad.");
                 return View(model);
             }
-
-            Console.WriteLine("✅ Propiedad creada exitosamente");
-            Console.WriteLine("=================================================");
 
             TempData["MensajeExito"] = "Propiedad creada exitosamente";
             return RedirectToAction("MisPropiedades");
@@ -152,8 +119,6 @@ namespace InmobiliariaMVC.Controllers
         // ============================================================
         public async Task<IActionResult> DetallePropiedad(int id)
         {
-            Console.WriteLine($"🔍 [DetallePropiedad] Id: {id}");
-
             var propiedad = await _apiService.GetAsync<PropiedadDetalleDTO>($"api/PropiedadesApi/{id}");
             if (propiedad == null) return NotFound();
 
@@ -166,12 +131,10 @@ namespace InmobiliariaMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> EditarPropiedad(int id)
         {
-            Console.WriteLine($"🔍 [EditarPropiedad GET] Id: {id}");
-
             var propiedad = await _apiService.GetAsync<PropiedadDetalleDTO>($"api/PropiedadesApi/{id}");
             if (propiedad == null) return NotFound();
 
-            var model = new PropiedadCreateViewModel
+            var model = new PropiedadEditViewModel
             {
                 Id = propiedad.Id,
                 Tipo = propiedad.Tipo,
@@ -183,7 +146,8 @@ namespace InmobiliariaMVC.Controllers
                 Habitaciones = propiedad.Habitaciones,
                 Banos = propiedad.Banos,
                 SuperficieM2 = propiedad.SuperficieM2,
-                IdAgente = propiedad.IdAgente
+                IdAgente = propiedad.IdAgente,
+                Imagenes = propiedad.Imagenes ?? new List<ImagenPropiedadDTO>()
             };
 
             return View(model);
@@ -194,13 +158,12 @@ namespace InmobiliariaMVC.Controllers
         // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarPropiedad(PropiedadCreateViewModel model)
+        public async Task<IActionResult> EditarPropiedad(PropiedadEditViewModel model, List<IFormFile> nuevasImagenes)
         {
-            Console.WriteLine($"🚀 [EditarPropiedad POST] Id: {model.Id}");
-
             if (!ModelState.IsValid) return View(model);
-            if (!model.Id.HasValue) return NotFound();
+            if (model.Id == 0) return NotFound();
 
+            // 1. Actualizar los campos de texto
             var resultado = await _apiService.PutAsync(
                 $"api/PropiedadesApi/{model.Id}",
                 new
@@ -223,6 +186,25 @@ namespace InmobiliariaMVC.Controllers
                 return View(model);
             }
 
+            // 2. Subir las nuevas imágenes (si las hay)
+            if (nuevasImagenes != null && nuevasImagenes.Any())
+            {
+                foreach (var file in nuevasImagenes)
+                {
+                    if (file.Length > 0)
+                    {
+                        var content = new MultipartFormDataContent();
+                        var streamContent = new StreamContent(file.OpenReadStream());
+                        streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                        content.Add(streamContent, "file", file.FileName);
+
+                        await _apiService.PostFormDataAsync<object>(
+                            $"api/PropiedadesApi/{model.Id}/imagenes",
+                            content);
+                    }
+                }
+            }
+
             TempData["MensajeExito"] = "Propiedad actualizada exitosamente";
             return RedirectToAction("MisPropiedades");
         }
@@ -234,8 +216,6 @@ namespace InmobiliariaMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarPropiedad(int id)
         {
-            Console.WriteLine($"🚀 [EliminarPropiedad] Id: {id}");
-
             var resultado = await _apiService.DeleteAsync($"api/PropiedadesApi/{id}");
 
             if (resultado)
@@ -252,9 +232,7 @@ namespace InmobiliariaMVC.Controllers
         private int ObtenerUsuarioId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var usuarioId = claim != null ? int.Parse(claim.Value) : 0;
-            Console.WriteLine($"🔍 [ObtenerUsuarioId] Claim: {claim?.Value ?? "NULL"} → UsuarioId: {usuarioId}");
-            return usuarioId;
+            return claim != null ? int.Parse(claim.Value) : 0;
         }
     }
 }
