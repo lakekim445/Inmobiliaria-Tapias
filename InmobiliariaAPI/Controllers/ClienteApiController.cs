@@ -1,9 +1,8 @@
-using System.Globalization;
 using System.Security.Claims;
-using System.Text;
 using InmobiliariaAPI.Data;
 using InmobiliariaAPI.DTOs;
 using InmobiliariaAPI.Models;
+using InmobiliariaAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +15,6 @@ namespace InmobiliariaAPI.Controllers
     public class ClienteApiController : ControllerBase
     {
         private readonly InmobiliariaContext _context;
-
-        private static readonly string[] DiasSemana =
-            { "Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado" };
 
         public ClienteApiController(InmobiliariaContext context)
         {
@@ -94,20 +90,41 @@ namespace InmobiliariaAPI.Controllers
             if (dto.HoraFin <= dto.HoraInicio)
                 return BadRequest(new { mensaje = "La hora de fin debe ser mayor a la de inicio" });
 
-            // Buscar disponibilidad del agente para ese día
-            var diaRequest = DiasSemana[(int)dto.Fecha.DayOfWeek];
-            var diaNormalizado = NormalizarDia(diaRequest);
+            var errorHorario = AgendaReglas.ValidarHorario(dto.HoraInicio, dto.HoraFin);
+            if (errorHorario != null)
+                return BadRequest(new { mensaje = errorHorario });
 
+            // Regla: cada visita bloquea 2 horas del agente.
+            var inicioDia = DateTime.SpecifyKind(dto.Fecha.Date, DateTimeKind.Utc);
+            var finDia = inicioDia.AddDays(1);
+
+            var citasDelDia = await _context.Citas
+                .Where(c => c.IdAgente == propiedad.IdAgente && c.FechaCita >= inicioDia && c.FechaCita < finDia)
+                .ToListAsync();
+
+            var horaAjustada = dto.HoraInicio;
+            var ajustada = AgendaReglas.HayConflicto(dto.HoraInicio, citasDelDia);
+
+            // Si el horario pedido no está libre, se asigna automáticamente el siguiente
+            // horario libre del agente ese mismo día (dentro de 9:00-18:00).
+            if (ajustada)
+            {
+                var libre = AgendaReglas.ProximaDisponible(dto.HoraInicio, citasDelDia);
+                if (!libre.HasValue)
+                    return BadRequest(new { mensaje = "El agente no tiene horarios libres ese día dentro de 9:00-18:00 (cada visita bloquea 2 horas)." });
+
+                horaAjustada = libre.Value;
+                dto.HoraFin = horaAjustada.Add(TimeSpan.FromHours(1));
+                dto.HoraInicio = horaAjustada;
+            }
+
+            // Disponibilidad del agente (opcional): si tiene horarios configurados en la
+            // tabla, se usa el que coincida con el día; si no, la visita se agenda igual.
             var disponibilidadAgente = await _context.DisponibilidadesAgente
                 .Where(d => d.IdAgente == propiedad.IdAgente && d.Activo)
                 .ToListAsync();
 
-            var disponibilidad = disponibilidadAgente
-                .FirstOrDefault(d => NormalizarDia(d.DiaSemana ?? "") == diaNormalizado)
-                ?? disponibilidadAgente.FirstOrDefault();
-
-            if (disponibilidad == null)
-                return BadRequest(new { mensaje = "El agente de la propiedad no tiene disponibilidad definida" });
+            var disponibilidad = AgendaReglas.BuscarDisponibilidad(dto.Fecha, disponibilidadAgente);
 
             var cita = new Cita
             {
@@ -119,14 +136,24 @@ namespace InmobiliariaAPI.Controllers
                 IdCliente = cliente.Id,
                 IdPropiedad = propiedad.Id,
                 IdAgente = propiedad.IdAgente,
-                IdDisponibilidad = disponibilidad.Id,
+                IdDisponibilidad = disponibilidad?.Id,
                 IdEstadoCita = 1
             };
 
             _context.Citas.Add(cita);
             await _context.SaveChangesAsync();
 
-            return Ok(new { mensaje = "Visita reservada exitosamente", id = cita.Id });
+            // Avisar al agente de la nueva solicitud de visita
+            CitaFlujo.Notificar(_context, propiedad.IdAgente,
+                $"{cliente.NombreCompleto} solicitó una visita para {propiedad.Tipo} en {propiedad.Zona} el {dto.Fecha:dd/MM/yyyy} a las {dto.HoraInicio:hh\\:mm}.",
+                "Confirmacion_Cita", cita.Id, propiedad.Id);
+            await _context.SaveChangesAsync();
+
+            var mensaje = ajustada
+                ? $"¡Visita reservada a las {dto.HoraInicio:hh\\:mm}! (el horario que elegiste estaba ocupado y se asignó el siguiente libre)."
+                : "¡Visita reservada exitosamente!";
+
+            return Ok(new { mensaje, id = cita.Id, horaInicio = dto.HoraInicio.ToString(@"hh\:mm"), ajustada });
         }
 
         // ============================================================
@@ -148,10 +175,77 @@ namespace InmobiliariaAPI.Controllers
             if (cita.IdEstadoCita != 1 && cita.IdEstadoCita != 2)
                 return BadRequest(new { mensaje = "Solo puedes cancelar citas pendientes o confirmadas" });
 
-            cita.IdEstadoCita = 3;
+            var usuarioId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            CitaFlujo.RegistrarHistorial(_context, cita, CitaFlujo.Cancelada, usuarioId, "Cancelada por el cliente");
+
+            // Avisar al agente de la cancelación
+            CitaFlujo.Notificar(_context, cita.IdAgente,
+                $"El cliente {cliente.NombreCompleto} CANCELÓ su visita del {cita.FechaCita:dd/MM/yyyy} a las {cita.HoraInicio:hh\\:mm}.",
+                "Cancelacion_Cita", cita.Id, cita.IdPropiedad);
+
             await _context.SaveChangesAsync();
 
             return Ok(new { mensaje = "Cita cancelada exitosamente" });
+        }
+
+        // ============================================================
+        // NOTIFICACIONES DEL CLIENTE
+        // ============================================================
+        [HttpGet("notificaciones")]
+        public async Task<IActionResult> Notificaciones()
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int usuarioId))
+                return Ok(new List<object>());
+
+            var lista = await _context.Notificaciones
+                .Where(n => n.IdUsuario == usuarioId)
+                .OrderByDescending(n => n.FechaEnvio)
+                .ToListAsync();
+
+            return Ok(lista.Select(n => new
+            {
+                n.Id,
+                n.Tipo,
+                n.Mensaje,
+                n.Leida,
+                n.FechaEnvio,
+                n.IdCita,
+                n.IdPropiedad
+            }).ToList());
+        }
+
+        [HttpGet("notificaciones/noleidas")]
+        public async Task<IActionResult> NoLeidas()
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int usuarioId))
+                return Ok(0);
+
+            var contador = await _context.Notificaciones
+                .CountAsync(n => n.IdUsuario == usuarioId && !n.Leida);
+            return Ok(contador);
+        }
+
+        [HttpPut("notificaciones/{id}/leer")]
+        public async Task<IActionResult> MarcarLeida(int id)
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(claimId) || !int.TryParse(claimId, out int usuarioId))
+                return Unauthorized();
+
+            var notif = await _context.Notificaciones
+                .FirstOrDefaultAsync(n => n.Id == id && n.IdUsuario == usuarioId);
+
+            if (notif == null)
+                return NotFound();
+
+            notif.Leida = true;
+            notif.FechaLectura = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensaje = "Notificación marcada como leída" });
         }
 
         // ============================================================
@@ -165,14 +259,6 @@ namespace InmobiliariaAPI.Controllers
 
             return await _context.Clientes
                 .FirstOrDefaultAsync(c => c.IdUsuario == usuarioId);
-        }
-
-        private static string NormalizarDia(string dia)
-        {
-            var sinAcentos = dia.Normalize(NormalizationForm.FormD)
-                .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                .ToArray();
-            return new string(sinAcentos).ToLowerInvariant();
         }
     }
 }

@@ -1,0 +1,54 @@
+@model List<InmobiliariaMVC.Models.NotificacionResumenDTO>
+
+@{
+    ViewData["Title"] = "Notificaciones";
+}
+
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Notificaciones</h1>
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Volver al panel
+        </a>
+    </div>
+
+    <div class="row g-3">
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="col-12">
+                <div class="card p-4 text-center">
+                    <p class="mb-0 text-muted">No tienes notificaciones</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var notif in Model)
+            {
+                <div class="col-12">
+                    <div class="card @(notif.Leida ? "opacity-50" : "")">
+                        <div class="card-body d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1">
+                                    @if (!notif.Leida)
+                                    {
+                                        <span class="badge-disponible me-2">Nueva</span>
+                                    }
+                                    <span class="text-muted small">@notif.FechaEnvio.ToString("dd/MM/yyyy HH:mm")</span>
+                                </p>
+                                <p class="mb-0">@notif.Mensaje</p>
+                            </div>
+                            @if (!notif.Leida)
+                            {
+                                <form asp-action="MarcarLeida" asp-route-id="@notif.Id" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">Marcar leída</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

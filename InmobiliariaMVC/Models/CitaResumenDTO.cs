@@ -9,6 +9,8 @@ namespace InmobiliariaMVC.Models
         public DateTime FechaSolicitud { get; set; }
         public string? Observaciones { get; set; }
         public string ClienteNombre { get; set; } = string.Empty;
+        public string ClienteTelefono { get; set; } = string.Empty;
+        public string ClienteEmail { get; set; } = string.Empty;
         public string PropiedadTipo { get; set; } = string.Empty;
         public string PropiedadZona { get; set; } = string.Empty;
         public string PropiedadDireccion { get; set; } = string.Empty;

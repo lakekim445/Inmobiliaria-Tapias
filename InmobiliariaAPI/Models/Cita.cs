@@ -11,7 +11,7 @@
         public int IdCliente { get; set; }
         public int IdPropiedad { get; set; }
         public int IdAgente { get; set; }
-        public int IdDisponibilidad { get; set; }
+        public int? IdDisponibilidad { get; set; }
         public int IdEstadoCita { get; set; }
         public Cliente? Cliente { get; set; }
         public Propiedad? Propiedad { get; set; }

@@ -1,0 +1,129 @@
+@model InmobiliariaMVC.Models.NuevaCitaViewModel
+
+@{
+    ViewData["Title"] = "Nueva Cita";
+}
+
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Registrar Nueva Cita</h1>
+        <a asp-action="Citas" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Volver a Mis Citas
+        </a>
+    </div>
+
+    <div class="alert-success-custom mb-4">
+        <i class="bi bi-info-circle"></i>
+        Las visitas se agendan entre 9:00 y 18:00. Cada visita bloquea 2 horas del agente:
+        tiempo de traslado, mostrar el inmueble y explicar los detalles.
+    </div>
+
+    <div class="card form-card" style="max-width: 800px;">
+        <form asp-action="NuevaCita" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="bi bi-person"></i> Cliente
+                </label>
+                <div class="mb-2">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Modo" value="registrado"
+                               id="modoRegistrado" onchange="toggleCliente()" />
+                        <label class="form-check-label" for="modoRegistrado">Cliente registrado</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Modo" value="nuevo"
+                               id="modoNuevo" onchange="toggleCliente()" />
+                        <label class="form-check-label" for="modoNuevo">Cliente sin cuenta (WhatsApp)</label>
+                    </div>
+                </div>
+
+                <div id="bloqueRegistrado">
+                    <select asp-for="IdCliente" class="form-control">
+                        <option value="0">-- Selecciona un cliente --</option>
+                        @foreach (var cliente in Model.Clientes)
+                        {
+                            <option value="@cliente.Id">@cliente.NombreCompleto (@cliente.Telefono)</option>
+                        }
+                    </select>
+                </div>
+
+                <div id="bloqueNuevo" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <input asp-for="NombreClienteNuevo" class="form-control"
+                                   placeholder="Nombre del cliente" />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <input asp-for="TelefonoClienteNuevo" class="form-control"
+                                   placeholder="Teléfono (WhatsApp)" />
+                        </div>
+                        <div class="col-12 mb-2">
+                            <input asp-for="EmailClienteNuevo" class="form-control"
+                                   placeholder="Email (opcional)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="IdPropiedad" class="form-label">
+                    <i class="bi bi-house-door"></i> Propiedad
+                </label>
+                <select asp-for="IdPropiedad" class="form-control">
+                    <option value="0">-- Selecciona una propiedad --</option>
+                    @foreach (var prop in Model.Propiedades)
+                    {
+                        <option value="@prop.Id">@prop.Tipo en @prop.Zona - @prop.Moneda @prop.Precio.ToString("N0")</option>
+                    }
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Fecha" class="form-label">
+                        <i class="bi bi-calendar"></i> Fecha de la visita
+                    </label>
+                    <input asp-for="Fecha" type="date" class="form-control" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="HoraInicio" class="form-label">
+                        <i class="bi bi-clock"></i> Hora de inicio
+                    </label>
+                    <select asp-for="HoraInicio" class="form-control">
+                        @for (int h = 9; h <= 17; h++)
+                        {
+                            var hora = new TimeSpan(h, 0, 0);
+                            <option value="@hora">@hora.ToString(@"hh\:mm")</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Observaciones" class="form-label">
+                    <i class="bi bi-chat-left-text"></i> Observaciones
+                </label>
+                <textarea asp-for="Observaciones" class="form-control" rows="3"
+                          placeholder="Notas de la visita (opcional)"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-calendar-check"></i> Registrar Cita
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleCliente() {
+            var modoNuevo = document.getElementById('modoNuevo').checked;
+            document.getElementById('bloqueRegistrado').style.display = modoNuevo ? 'none' : '';
+            document.getElementById('bloqueNuevo').style.display = modoNuevo ? '' : 'none';
+        }
+        toggleCliente();
+    </script>
+}

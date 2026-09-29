@@ -40,6 +40,9 @@ namespace InmobiliariaMVC.Controllers
 
             ViewBag.ComisionTotal = comisionTotal;
 
+            var noLeidas = await _apiService.GetAsync<int>("api/AgenteApi/notificaciones/noleidas");
+            ViewBag.NotifNoLeidas = noLeidas;
+
             return View();
         }
 
@@ -224,6 +227,172 @@ namespace InmobiliariaMVC.Controllers
                 TempData["MensajeError"] = "Error al eliminar la propiedad.";
 
             return RedirectToAction("MisPropiedades");
+        }
+
+        // ============================================================
+        // MIS CITAS (visitas asignadas al agente)
+        // ============================================================
+        public async Task<IActionResult> Citas()
+        {
+            var citas = await _apiService.GetAsync<List<CitaResumenDTO>>("api/AgenteApi/citas");
+            if (citas == null)
+                citas = new List<CitaResumenDTO>();
+
+            ViewBag.Pendientes = citas.Count(c => c.EstadoNombre == "Pendiente");
+            ViewBag.Confirmadas = citas.Count(c => c.EstadoNombre == "Confirmada");
+            ViewBag.Canceladas = citas.Count(c => c.EstadoNombre == "Cancelada");
+
+            return View(citas.OrderByDescending(c => c.FechaCita).ToList());
+        }
+
+        // ============================================================
+        // NUEVA CITA (GET) - el agente agenda la visita manualmente
+        // ============================================================
+        [HttpGet]
+        public async Task<IActionResult> NuevaCita()
+        {
+            var model = new NuevaCitaViewModel();
+            await CargarListasCita(model);
+            return View(model);
+        }
+
+        // ============================================================
+        // NUEVA CITA (POST)
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NuevaCita(NuevaCitaViewModel model)
+        {
+            if (model.Modo == "nuevo")
+            {
+                if (string.IsNullOrWhiteSpace(model.NombreClienteNuevo))
+                    ModelState.AddModelError("", "Ingresa el nombre del cliente.");
+                model.IdCliente = 0;
+            }
+            else if (model.IdCliente <= 0)
+            {
+                ModelState.AddModelError("", "Selecciona un cliente o marca la opción 'cliente sin cuenta'.");
+            }
+
+            if (model.IdPropiedad <= 0)
+                ModelState.AddModelError("", "Selecciona una propiedad.");
+            if (model.Fecha.Date < DateTime.Today)
+                ModelState.AddModelError("", "La fecha debe ser de hoy en adelante.");
+            if (model.HoraInicio <= TimeSpan.Zero)
+                ModelState.AddModelError("", "Indica una hora válida para la visita.");
+
+            if (!ModelState.IsValid)
+            {
+                await CargarListasCita(model);
+                return View(model);
+            }
+
+            var (resultado, error) = await _apiService.PostConErrorAsync<CitaCreadaDTO>(
+                "api/AgenteApi/citas",
+                new
+                {
+                    model.IdCliente,
+                    model.IdPropiedad,
+                    model.Fecha,
+                    model.HoraInicio,
+                    HoraFin = model.HoraInicio.Add(TimeSpan.FromHours(1)),
+                    model.Observaciones,
+                    NombreClienteNuevo = model.Modo == "nuevo" ? model.NombreClienteNuevo : null,
+                    TelefonoClienteNuevo = model.Modo == "nuevo" ? model.TelefonoClienteNuevo : null,
+                    EmailClienteNuevo = model.Modo == "nuevo" ? model.EmailClienteNuevo : null
+                });
+
+            if (resultado == null || string.IsNullOrWhiteSpace(resultado.Mensaje))
+            {
+                ModelState.AddModelError("", error ?? "No se pudo registrar la cita. Revisa el horario.");
+                await CargarListasCita(model);
+                return View(model);
+            }
+
+            TempData["MensajeExito"] = resultado.Mensaje;
+            return RedirectToAction("Citas");
+        }
+
+        // ============================================================
+        // CANCELAR CITA (POST)
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelarCita(int id)
+        {
+            var resultado = await _apiService.PutAsync($"api/AgenteApi/citas/{id}/cancelar", new { });
+
+            if (resultado)
+                TempData["MensajeExito"] = "Cita cancelada correctamente.";
+            else
+                TempData["MensajeError"] = "No se pudo cancelar la cita.";
+
+            return RedirectToAction("Citas");
+        }
+
+        // ============================================================
+        // CONFIRMAR CITA (POST)
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarCita(int id)
+        {
+            var resultado = await _apiService.PutAsync($"api/AgenteApi/citas/{id}/confirmar", new { });
+
+            if (resultado)
+                TempData["MensajeExito"] = "Cita confirmada correctamente.";
+            else
+                TempData["MensajeError"] = "No se pudo confirmar la cita.";
+
+            return RedirectToAction("Citas");
+        }
+
+        // ============================================================
+        // COMPLETAR CITA (POST)
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CompletarCita(int id)
+        {
+            var resultado = await _apiService.PutAsync($"api/AgenteApi/citas/{id}/completar", new { });
+
+            if (resultado)
+                TempData["MensajeExito"] = "Visita registrada como completada.";
+            else
+                TempData["MensajeError"] = "No se pudo completar la visita.";
+
+            return RedirectToAction("Citas");
+        }
+
+        // ============================================================
+        // NOTIFICACIONES DEL AGENTE
+        // ============================================================
+        public async Task<IActionResult> Notificaciones()
+        {
+            var lista = await _apiService.GetAsync<List<NotificacionResumenDTO>>("api/AgenteApi/notificaciones");
+            return View(lista ?? new List<NotificacionResumenDTO>());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarcarLeida(int id)
+        {
+            await _apiService.PutAsync($"api/AgenteApi/notificaciones/{id}/leer", new { });
+            return RedirectToAction("Notificaciones");
+        }
+
+        // ============================================================
+        // MÉTODO AUXILIAR: Cargar listas de clientes y propiedades
+        // ============================================================
+        private async Task CargarListasCita(NuevaCitaViewModel model)
+        {
+            var usuarioId = ObtenerUsuarioId();
+
+            var clientes = await _apiService.GetAsync<List<ClienteResumenDTO>>("api/AgenteApi/clientes");
+            model.Clientes = clientes ?? new List<ClienteResumenDTO>();
+
+            var propiedades = await _apiService.GetAsync<List<PropiedadResumenDTO>>($"api/PropiedadesApi/agente/{usuarioId}");
+            model.Propiedades = propiedades ?? new List<PropiedadResumenDTO>();
         }
 
         // ============================================================

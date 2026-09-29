@@ -41,6 +41,13 @@
             <div class="form-card">
                 <h4 class="mb-3">Elige fecha y hora</h4>
 
+                <p class="text-muted mb-3">
+                    <i class="bi bi-info-circle"></i>
+                    Las visitas se agendan entre 9:00 y 18:00. Si elige una hora que el agente ya tiene
+                    ocupada (cada visita ocupa 2 horas del agente), se le asignará automáticamente el
+                    siguiente horario libre del mismo día.
+                </p>
+
                 <form asp-action="Reservar" method="post">
                     <input type="hidden" asp-for="IdPropiedad" />
                     <input type="hidden" asp-for="UrlImagen" />
@@ -61,8 +68,13 @@
                         </div>
                         <div class="col-md-6">
                             <label asp-for="HoraInicio" class="form-label">Hora de la visita</label>
-                            <input asp-for="HoraInicio" type="time" min="08:00" max="22:00"
-                                   class="form-control" />
+                            <select asp-for="HoraInicio" class="form-control">
+                                @for (int h = 9; h <= 17; h++)
+                                {
+                                    var hora = new TimeSpan(h, 0, 0);
+                                    <option value="@hora">@hora.ToString(@"hh\:mm")</option>
+                                }
+                            </select>
                             <span asp-validation-for="HoraInicio" class="text-danger"></span>
                         </div>
                         <div class="col-12">

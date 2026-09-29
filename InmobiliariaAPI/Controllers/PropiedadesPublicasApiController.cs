@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InmobiliariaAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/PropiedadesPublicas")]
     [ApiController]
     [AllowAnonymous]
     public class PropiedadesPublicasApiController : ControllerBase

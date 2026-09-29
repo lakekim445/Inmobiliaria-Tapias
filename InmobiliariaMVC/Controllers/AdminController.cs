@@ -138,8 +138,8 @@ namespace InmobiliariaMVC.Controllers
 
         public async Task<IActionResult> Citas()
         {
-            var citas = await _apiService.GetAsync<List<object>>("api/AdminApi/citas");
-            return View(citas ?? new List<object>());
+            var citas = await _apiService.GetAsync<List<CitaResumenDTO>>("api/AdminApi/citas");
+            return View(citas ?? new List<CitaResumenDTO>());
         }
 
         public async Task<IActionResult> Comisiones()

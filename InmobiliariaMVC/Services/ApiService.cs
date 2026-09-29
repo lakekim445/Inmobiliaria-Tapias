@@ -55,6 +55,44 @@ namespace InmobiliariaMVC.Services
             }
         }
 
+        /// <summary>POST que además devuelve el mensaje de la API en caso de error (400/500).</summary>
+        public async Task<(T? Data, string? Error)> PostConErrorAsync<T>(string endpoint, object data)
+        {
+            try
+            {
+                AgregarToken();
+
+                var json = JsonSerializer.Serialize(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync(endpoint, content);
+                var body = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string? mensaje = null;
+                    try
+                    {
+                        mensaje = JsonSerializer.Deserialize<JsonElement>(body)
+                            .GetProperty("mensaje").GetString();
+                    }
+                    catch { }
+
+                    return (default, mensaje ?? "Ocurrió un error al guardar. Intenta de nuevo.");
+                }
+
+                var resultado = JsonSerializer.Deserialize<T>(body, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return (resultado, null);
+            }
+            catch (Exception ex)
+            {
+                return (default, ex.Message);
+            }
+        }
+
         public async Task<T?> GetAsync<T>(string endpoint)
         {
             try

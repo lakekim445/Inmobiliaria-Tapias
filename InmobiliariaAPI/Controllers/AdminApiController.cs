@@ -1,6 +1,7 @@
 ﻿using InmobiliariaAPI.Data;
 using InmobiliariaAPI.DTOs;
 using InmobiliariaAPI.Models;
+using InmobiliariaAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -462,6 +463,94 @@ namespace InmobiliariaAPI.Controllers
             }).ToList();
 
             return Ok(resultado);
+        }
+
+        // ============================================================
+        // CITAS - REGISTRAR MANUALMENTE
+        // ============================================================
+        [HttpPost("citas")]
+        public async Task<IActionResult> CrearCitaManual([FromBody] CitaManualCreateDTO dto)
+        {
+            if (dto.IdCliente <= 0)
+                return BadRequest(new { mensaje = "Selecciona un cliente" });
+
+            if (dto.IdPropiedad <= 0)
+                return BadRequest(new { mensaje = "Selecciona una propiedad" });
+
+            var cliente = await _context.Clientes.FindAsync(dto.IdCliente);
+            if (cliente == null)
+                return BadRequest(new { mensaje = "El cliente no existe" });
+
+            var propiedad = await _context.Propiedades.FindAsync(dto.IdPropiedad);
+            if (propiedad == null)
+                return BadRequest(new { mensaje = "La propiedad no existe" });
+
+            if (dto.Fecha.Date < DateTime.Today)
+                return BadRequest(new { mensaje = "La fecha debe ser de hoy en adelante" });
+
+            if (dto.HoraInicio <= TimeSpan.Zero)
+                return BadRequest(new { mensaje = "Indica una hora válida para la visita" });
+
+            if (dto.HoraFin <= TimeSpan.Zero)
+                dto.HoraFin = dto.HoraInicio.Add(TimeSpan.FromHours(1));
+
+            var errorHorario = AgendaReglas.ValidarHorario(dto.HoraInicio, dto.HoraFin);
+            if (errorHorario != null)
+                return BadRequest(new { mensaje = errorHorario });
+
+            // Regla: cada visita bloquea 2 horas del agente.
+            var inicioDia = DateTime.SpecifyKind(dto.Fecha.Date, DateTimeKind.Utc);
+            var finDia = inicioDia.AddDays(1);
+
+            var citasDelDia = await _context.Citas
+                .Where(c => c.IdAgente == propiedad.IdAgente && c.FechaCita >= inicioDia && c.FechaCita < finDia)
+                .ToListAsync();
+
+            var horaAjustada = dto.HoraInicio;
+            var ajustada = AgendaReglas.HayConflicto(dto.HoraInicio, citasDelDia);
+
+            // Si el horario pedido no está libre, se asigna automáticamente el siguiente
+            // horario libre del agente ese mismo día (dentro de 9:00-18:00).
+            if (ajustada)
+            {
+                var libre = AgendaReglas.ProximaDisponible(dto.HoraInicio, citasDelDia);
+                if (!libre.HasValue)
+                    return BadRequest(new { mensaje = "El agente no tiene horarios libres ese día dentro de 9:00-18:00 (cada visita bloquea 2 horas)." });
+
+                horaAjustada = libre.Value;
+                dto.HoraFin = horaAjustada.Add(TimeSpan.FromHours(1));
+                dto.HoraInicio = horaAjustada;
+            }
+
+            // Disponibilidad (opcional): si existe fila, se asocia; si no, se agenda igual.
+            var disponibilidades = await _context.DisponibilidadesAgente
+                .Where(d => d.IdAgente == propiedad.IdAgente && d.Activo)
+                .ToListAsync();
+
+            var disponibilidad = AgendaReglas.BuscarDisponibilidad(dto.Fecha, disponibilidades);
+
+            var cita = new Cita
+            {
+                FechaCita = dto.Fecha,
+                HoraInicio = dto.HoraInicio,
+                HoraFin = dto.HoraFin,
+                FechaSolicitud = DateTime.UtcNow,
+                Observaciones = dto.Observaciones,
+                IdCliente = cliente.Id,
+                IdPropiedad = propiedad.Id,
+                IdAgente = propiedad.IdAgente,
+                IdDisponibilidad = disponibilidad?.Id,
+                IdEstadoCita = 1
+            };
+
+            _context.Citas.Add(cita);
+            await _context.SaveChangesAsync();
+
+            var mensaje = ajustada
+                ? $"Cita registrada a las {dto.HoraInicio:hh\\:mm} (el horario pedido estaba ocupado y se asignó el siguiente libre)."
+                : "Cita registrada exitosamente";
+
+            return Ok(new { mensaje, id = cita.Id, horaInicio = dto.HoraInicio.ToString(@"hh\:mm"), ajustada });
         }
 
         // ============================================================

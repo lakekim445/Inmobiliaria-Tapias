@@ -1,5 +1,6 @@
 ﻿using InmobiliariaAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace InmobiliariaAPI.Data
 {
@@ -26,6 +27,19 @@ namespace InmobiliariaAPI.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            var fechaSinZona = new ValueConverter<DateTime, DateTime>(
+                v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified));
+
+            foreach (var et in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var prop in et.GetProperties()
+                    .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
+                {
+                    prop.SetValueConverter(fechaSinZona);
+                }
+            }
 
             // ============================================================
             // ROL
@@ -191,10 +205,10 @@ namespace InmobiliariaAPI.Data
                 entity.ToTable("cita");
                 entity.HasKey(c => c.Id);
                 entity.Property(c => c.Id).HasColumnName("id_cita");
-                entity.Property(c => c.FechaCita).HasColumnName("fecha_cita");
-                entity.Property(c => c.HoraInicio).HasColumnName("hora_inicio");
-                entity.Property(c => c.HoraFin).HasColumnName("hora_fin");
-                entity.Property(c => c.FechaSolicitud).HasColumnName("fecha_solicitud");
+                entity.Property(c => c.FechaCita).HasColumnName("fecha_cita").HasColumnType("date");
+                entity.Property(c => c.HoraInicio).HasColumnName("hora_inicio").HasColumnType("time");
+                entity.Property(c => c.HoraFin).HasColumnName("hora_fin").HasColumnType("time");
+                entity.Property(c => c.FechaSolicitud).HasColumnName("fecha_solicitud").HasColumnType("timestamp without time zone");
                 entity.Property(c => c.Observaciones).HasColumnName("observaciones");
                 entity.Property(c => c.IdCliente).HasColumnName("id_cliente");
                 entity.Property(c => c.IdPropiedad).HasColumnName("id_propiedad");
@@ -239,7 +253,7 @@ namespace InmobiliariaAPI.Data
                 entity.Property(h => h.EstadoAnterior).HasColumnName("estado_anterior");
                 entity.Property(h => h.EstadoNuevo).HasColumnName("estado_nuevo");
                 entity.Property(h => h.Motivo).HasColumnName("motivo");
-                entity.Property(h => h.FechaCambio).HasColumnName("fecha_cambio");
+                entity.Property(h => h.FechaCambio).HasColumnName("fecha_cambio").HasColumnType("timestamp without time zone");
                 entity.Property(h => h.IdCita).HasColumnName("id_cita");
                 entity.Property(h => h.IdUsuario).HasColumnName("id_usuario");
 
@@ -265,8 +279,8 @@ namespace InmobiliariaAPI.Data
                 entity.Property(n => n.Tipo).HasColumnName("tipo");
                 entity.Property(n => n.Mensaje).HasColumnName("mensaje");
                 entity.Property(n => n.Leida).HasColumnName("leida");
-                entity.Property(n => n.FechaEnvio).HasColumnName("fecha_envio");
-                entity.Property(n => n.FechaLectura).HasColumnName("fecha_lectura");
+                entity.Property(n => n.FechaEnvio).HasColumnName("fecha_envio").HasColumnType("timestamp without time zone");
+                entity.Property(n => n.FechaLectura).HasColumnName("fecha_lectura").HasColumnType("timestamp without time zone");
                 entity.Property(n => n.IdUsuario).HasColumnName("id_usuario");
                 entity.Property(n => n.IdCita).HasColumnName("id_cita");
                 entity.Property(n => n.IdPropiedad).HasColumnName("id_propiedad");
@@ -295,11 +309,11 @@ namespace InmobiliariaAPI.Data
                 entity.ToTable("seguimiento_cliente");
                 entity.HasKey(s => s.Id);
                 entity.Property(s => s.Id).HasColumnName("id_seguimiento");
-                entity.Property(s => s.FechaInteraccion).HasColumnName("fecha_interaccion");
+                entity.Property(s => s.FechaInteraccion).HasColumnName("fecha_interaccion").HasColumnType("timestamp without time zone");
                 entity.Property(s => s.TipoContacto).HasColumnName("tipo_contacto");
                 entity.Property(s => s.Descripcion).HasColumnName("descripcion");
                 entity.Property(s => s.ProximaAccion).HasColumnName("proxima_accion");
-                entity.Property(s => s.FechaProxima).HasColumnName("fecha_proxima");
+                entity.Property(s => s.FechaProxima).HasColumnName("fecha_proxima").HasColumnType("timestamp without time zone");
                 entity.Property(s => s.IdCliente).HasColumnName("id_cliente");
                 entity.Property(s => s.IdAgente).HasColumnName("id_agente");
                 entity.Property(s => s.IdPropiedad).HasColumnName("id_propiedad");

@@ -1,0 +1,160 @@
+@model List<InmobiliariaMVC.Models.CitaResumenDTO>
+
+@{
+    ViewData["Title"] = "Mis Citas";
+}
+
+<div class="container-main">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Mis Citas</h1>
+        <a asp-action="NuevaCita" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Cita
+        </a>
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert-success-custom">
+            <i class="bi bi-check-circle"></i> @TempData["MensajeExito"]
+        </div>
+    }
+
+    @if (TempData["MensajeError"] != null)
+    {
+        <div class="alert-error-custom">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["MensajeError"]
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Pendientes</h6>
+                    <h2 style="color:#C1512F;">@ViewBag.Pendientes</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Confirmadas</h6>
+                    <h2 style="color:#C1512F;">@ViewBag.Confirmadas</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Canceladas</h6>
+                    <h2 style="color:#C1512F;">@ViewBag.Canceladas</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="text-muted mb-4">
+        <i class="bi bi-info-circle"></i> Recordá que cada visita bloquea 2 horas del agente
+        (traslado, mostrar el inmueble y explicar).
+    </p>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Teléfono</th>
+                    <th>Propiedad</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4">No tienes visitas agendadas</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var cita in Model)
+                    {
+                        <tr>
+                            <td>@cita.FechaCita.ToString("dd/MM/yyyy")</td>
+                            <td>@cita.HoraInicio.ToString(@"hh\:mm") - @cita.HoraFin.ToString(@"hh\:mm")</td>
+                            <td><strong>@cita.ClienteNombre</strong><br /><small>@cita.ClienteEmail</small></td>
+                            <td>@(cita.ClienteTelefono ?? "-")</td>
+                            <td>@cita.PropiedadTipo en @cita.PropiedadZona</td>
+                            <td>
+                                @if (cita.EstadoNombre == "Cancelada")
+                                {
+                                    <span class="badge-vendido">@cita.EstadoNombre</span>
+                                }
+                                else if (cita.EstadoNombre == "Confirmada")
+                                {
+                                    <span class="badge-reservado">@cita.EstadoNombre</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-disponible">@cita.EstadoNombre</span>
+                                }
+                            </td>
+                            <td>
+                                @if (cita.EstadoNombre == "Pendiente")
+                                {
+                                    <div class="d-flex gap-1">
+                                        <form asp-action="ConfirmarCita" asp-route-id="@cita.Id" method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-action" title="Confirmar cita">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="CompletarCita" asp-route-id="@cita.Id" method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-action" title="Completar visita">
+                                                <i class="bi bi-check2-square"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="CancelarCita" asp-route-id="@cita.Id" method="post"
+                                              onsubmit="return confirm('¿Cancelar esta visita?');"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-action btn-action-danger" title="Cancelar cita">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                else if (cita.EstadoNombre == "Confirmada")
+                                {
+                                    <div class="d-flex gap-1">
+                                        <form asp-action="CompletarCita" asp-route-id="@cita.Id" method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-action" title="Completar visita">
+                                                <i class="bi bi-check2-square"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="CancelarCita" asp-route-id="@cita.Id" method="post"
+                                              onsubmit="return confirm('¿Cancelar esta visita?');"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-action btn-action-danger" title="Cancelar cita">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

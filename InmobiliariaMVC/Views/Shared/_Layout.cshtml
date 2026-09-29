@@ -116,7 +116,58 @@
          FOOTER
          ============================================================ -->
     <footer class="footer">
-        <p>&copy; @DateTime.Now.Year - Tapia's Solution | Inmobiliaria en Cochabamba, Bolivia</p>
+        <div class="container">
+            <div class="row footer-columns">
+                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+                    <a class="navbar-brand logo-tapia d-inline-block mb-2"
+                       asp-controller="Home" asp-action="Index">
+                        <img src="/images/logo-tapias-transparente.png" alt="Tapia's Solution">
+                    </a>
+                    <p class="footer-text">
+                        Inmobiliaria en Cochabamba, Bolivia. Tramitamos la compra,
+                        venta y alquiler de tu propiedad.
+                    </p>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+                    <h5 class="footer-title">Horarios de Atención</h5>
+                    <p class="footer-text"><i class="bi bi-clock"></i> Lunes a Domingo</p>
+                    <p class="footer-text">9:00 AM a 6:00 PM</p>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+                    <h5 class="footer-title">Nuestra Oficina</h5>
+                    <p class="footer-text"><i class="bi bi-geo-alt"></i> Cochabamba, Bolivia</p>
+                    <a href="https://maps.app.goo.gl/jb2g7p2X9hqTL6o17" target="_blank" rel="noopener">
+                        <i class="bi bi-map"></i> Ver en Google Maps
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <h5 class="footer-title">Contáctanos</h5>
+                    <p class="footer-text">
+                        <a href="https://wa.me/59169172830" target="_blank" rel="noopener">
+                            <i class="bi bi-whatsapp"></i> +591 69172830
+                        </a>
+                    </p>
+                    <div class="footer-social">
+                        <a href="https://wa.me/59169172830" target="_blank" rel="noopener" title="WhatsApp">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
+                        <a href="https://www.facebook.com/share/1HmqoGDtrb/" target="_blank" rel="noopener" title="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="https://www.instagram.com/tapiasolution?stkn=NXRxem8xNHoxazJ1" target="_blank" rel="noopener" title="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="footer-divider">
+
+            <p class="footer-copy">&copy; @DateTime.Now.Year - Tapia's Solution | Inmobiliaria en Cochabamba, Bolivia</p>
+        </div>
     </footer>
 
     <!-- ============================================================

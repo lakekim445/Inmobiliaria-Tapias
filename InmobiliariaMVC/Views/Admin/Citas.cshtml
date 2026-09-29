@@ -1,8 +1,81 @@
-﻿@{
+﻿@model List<InmobiliariaMVC.Models.CitaResumenDTO>
+
+@{
     ViewData["Title"] = "Citas";
 }
 
 <div class="container-fluid px-4 py-4">
-    <h1 class="mb-4">Todas las Citas</h1>
-    <p>Próximamente: lista detallada de citas.</p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Todas las Citas</h1>
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Volver al panel
+        </a>
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert-success-custom">
+            <i class="bi bi-check-circle"></i> @TempData["MensajeExito"]
+        </div>
+    }
+
+    @if (TempData["MensajeError"] != null)
+    {
+        <div class="alert-error-custom">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["MensajeError"]
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Propiedad</th>
+                    <th>Agente</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4">No hay citas registradas</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var cita in Model)
+                    {
+                        <tr>
+                            <td>@cita.FechaCita.ToString("dd/MM/yyyy")</td>
+                            <td>@cita.HoraInicio.ToString(@"hh\:mm") - @cita.HoraFin.ToString(@"hh\:mm")</td>
+                            <td>
+                                <strong>@cita.ClienteNombre</strong><br />
+                                <small>@(cita.ClienteTelefono ?? "")</small>
+                            </td>
+                            <td>@cita.PropiedadTipo en @cita.PropiedadZona</td>
+                            <td>@cita.AgenteNombre</td>
+                            <td>
+                                @if (cita.EstadoNombre == "Cancelada")
+                                {
+                                    <span class="badge-vendido">@cita.EstadoNombre</span>
+                                }
+                                else if (cita.EstadoNombre == "Confirmada")
+                                {
+                                    <span class="badge-reservado">@cita.EstadoNombre</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-disponible">@cita.EstadoNombre</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

@@ -33,7 +33,27 @@ namespace InmobiliariaMVC.Controllers
                 .Take(3)
                 .ToList();
 
+            var noLeidas = await _apiService.GetAsync<int>("api/ClienteApi/notificaciones/noleidas");
+            ViewBag.NotifNoLeidas = noLeidas;
+
             return View();
+        }
+
+        // ============================================================
+        // 🔔 NOTIFICACIONES DEL CLIENTE
+        // ============================================================
+        public async Task<IActionResult> Notificaciones()
+        {
+            var lista = await _apiService.GetAsync<List<NotificacionResumenDTO>>("api/ClienteApi/notificaciones");
+            return View(lista ?? new List<NotificacionResumenDTO>());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarcarLeida(int id)
+        {
+            await _apiService.PutAsync($"api/ClienteApi/notificaciones/{id}/leer", new { });
+            return RedirectToAction("Notificaciones");
         }
 
         // ============================================================
@@ -104,7 +124,7 @@ namespace InmobiliariaMVC.Controllers
                 return View(model);
             }
 
-            var resultado = await _apiService.PostAsync<object>("api/ClienteApi/citas", new
+            var (resultado, error) = await _apiService.PostConErrorAsync<CitaCreadaDTO>("api/ClienteApi/citas", new
             {
                 model.IdPropiedad,
                 model.Fecha,
@@ -113,14 +133,14 @@ namespace InmobiliariaMVC.Controllers
                 model.Observaciones
             });
 
-            if (resultado == null)
+            if (resultado == null || string.IsNullOrWhiteSpace(resultado.Mensaje))
             {
-                ModelState.AddModelError("", "No se pudo reservar la visita. Intenta con otro horario.");
+                ModelState.AddModelError("", error ?? "No se pudo reservar la visita. Intenta con otro horario.");
                 await CargarDatosPropiedad(model);
                 return View(model);
             }
 
-            TempData["MensajeExito"] = "¡Visita reservada! El agente se contactará contigo.";
+            TempData["MensajeExito"] = resultado.Mensaje;
             return RedirectToAction("MisCitas");
         }
 
