@@ -72,7 +72,7 @@
                                        class="btn-action" title="Ver detalle">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    @if (string.IsNullOrEmpty(prop.TipoOperacion))
+                                    @if (!prop.FechaCierre.HasValue)
                                     {
                                         <a asp-action="EditarPropiedad" asp-route-id="@prop.Id"
                                            class="btn-action" title="Editar">

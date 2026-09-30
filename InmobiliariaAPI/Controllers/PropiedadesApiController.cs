@@ -90,6 +90,7 @@ namespace InmobiliariaAPI.Controllers
             var nuevaPropiedad = new Propiedad
             {
                 Tipo = dto.Tipo,
+                TipoOperacion = dto.TipoOperacion,
                 Precio = dto.Precio,
                 Moneda = dto.Moneda,
                 Zona = dto.Zona,
@@ -98,7 +99,7 @@ namespace InmobiliariaAPI.Controllers
                 Habitaciones = dto.Habitaciones,
                 Banos = dto.Banos,
                 SuperficieM2 = dto.SuperficieM2,
-                Estado = "Disponible",
+                Estado = EstadoSegunOperacion(dto.TipoOperacion),
                 FechaPublicacion = DateTime.UtcNow,
                 IdAgente = dto.IdAgente
             };
@@ -153,6 +154,7 @@ namespace InmobiliariaAPI.Controllers
             if (propiedad == null) return NotFound();
 
             propiedad.Tipo = dto.Tipo;
+            propiedad.TipoOperacion = dto.TipoOperacion;
             propiedad.Precio = dto.Precio;
             propiedad.Moneda = dto.Moneda;
             propiedad.Zona = dto.Zona;
@@ -161,6 +163,7 @@ namespace InmobiliariaAPI.Controllers
             propiedad.Habitaciones = dto.Habitaciones;
             propiedad.Banos = dto.Banos;
             propiedad.SuperficieM2 = dto.SuperficieM2;
+            propiedad.Estado = EstadoSegunOperacion(dto.TipoOperacion);
 
             await _context.SaveChangesAsync();
 
@@ -270,6 +273,11 @@ namespace InmobiliariaAPI.Controllers
                     EsPrincipal = i.EsPrincipal
                 }).ToList() ?? new List<ImagenPropiedadDTO>()
             };
+        }
+
+        private static string EstadoSegunOperacion(string? operacion)
+        {
+            return "Disponible";
         }
     }
 }

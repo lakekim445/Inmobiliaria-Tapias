@@ -305,6 +305,7 @@ namespace InmobiliariaAPI.Controllers
             if (propiedad == null) return NotFound();
 
             propiedad.Tipo = dto.Tipo;
+            propiedad.TipoOperacion = dto.TipoOperacion;
             propiedad.Precio = dto.Precio;
             propiedad.Moneda = dto.Moneda;
             propiedad.Zona = dto.Zona;

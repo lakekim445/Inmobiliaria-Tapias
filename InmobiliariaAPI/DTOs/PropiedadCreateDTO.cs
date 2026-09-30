@@ -3,6 +3,7 @@
     public class PropiedadCreateDTO
     {
         public string Tipo { get; set; } = string.Empty;
+        public string TipoOperacion { get; set; } = "Venta";
         public decimal Precio { get; set; }
         public string Moneda { get; set; } = "USD";
         public string Zona { get; set; } = string.Empty;

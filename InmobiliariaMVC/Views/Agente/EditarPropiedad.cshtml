@@ -32,12 +32,13 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label asp-for="Moneda" class="form-label">
-                        <i class="bi bi-currency-dollar"></i> Moneda
+                    <label asp-for="TipoOperacion" class="form-label">
+                        <i class="bi bi-tag"></i> Tipo de Operación
                     </label>
-                    <select asp-for="Moneda" class="form-control">
-                        <option value="USD">USD</option>
-                        <option value="Bs">Bs</option>
+                    <select asp-for="TipoOperacion" class="form-control">
+                        <option value="Venta">Venta</option>
+                        <option value="Alquiler">Alquiler</option>
+                        <option value="Anticretico">Anticrético</option>
                     </select>
                 </div>
             </div>
@@ -48,6 +49,16 @@
                 </label>
                 <input asp-for="Precio" type="number" step="0.01" class="form-control" />
                 <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Moneda" class="form-label">
+                    <i class="bi bi-currency-dollar"></i> Moneda
+                </label>
+                <select asp-for="Moneda" class="form-control">
+                    <option value="USD">USD</option>
+                    <option value="Bs">Bs</option>
+                </select>
             </div>
 
             <div class="mb-3">

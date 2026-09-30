@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InmobiliariaMVC.Controllers
 {
-    // ⚠️ SIN [Authorize] → catálogo público, cualquiera puede verlo
+
     public class PropiedadesController : Controller
     {
         private readonly ApiService _apiService;
@@ -14,9 +14,7 @@ namespace InmobiliariaMVC.Controllers
             _apiService = apiService;
         }
 
-        // ============================================================
-        // 📋 CATÁLOGO — con filtros por zona, tipo y precio
-        // ============================================================
+
         public async Task<IActionResult> Index(
             string? tipo,
             string? zona,
@@ -27,7 +25,6 @@ namespace InmobiliariaMVC.Controllers
             var todas = await _apiService.GetAsync<List<PropiedadResumenDTO>>(
                 "api/PropiedadesPublicas") ?? new List<PropiedadResumenDTO>();
 
-            // Listas para los filtros (sobre el catálogo completo)
             ViewBag.Zonas = todas
                 .Select(p => p.Zona)
                 .Where(z => !string.IsNullOrEmpty(z))
@@ -68,7 +65,7 @@ namespace InmobiliariaMVC.Controllers
                 _ => resultado
             };
 
-            // Guardar filtros para que la vista los muestre seleccionados
+ 
             ViewBag.Tipo = tipo;
             ViewBag.Zona = zona;
             ViewBag.PrecioMin = precioMin;
@@ -79,9 +76,6 @@ namespace InmobiliariaMVC.Controllers
             return View(resultado);
         }
 
-        // ============================================================
-        // 🔍 DETALLE — con galería completa
-        // ============================================================
         public async Task<IActionResult> Detalle(int id)
         {
             var propiedad = await _apiService.GetAsync<PropiedadDetalleDTO>(

@@ -65,7 +65,7 @@ namespace InmobiliariaAPI.Data
                 entity.Property(u => u.Email).HasColumnName("email");
                 entity.Property(u => u.PasswordHash).HasColumnName("password_hash");
                 entity.Property(u => u.Telefono).HasColumnName("telefono");
-                entity.Property(u => u.FechaRegistro).HasColumnName("fecha_registro");
+                entity.Property(u => u.FechaRegistro).HasColumnName("fecha_registro").HasColumnType("timestamp without time zone");
                 entity.Property(u => u.Activo).HasColumnName("activo");
                 entity.Property(u => u.IdRol).HasColumnName("id_rol");
 
@@ -99,7 +99,7 @@ namespace InmobiliariaAPI.Data
                 entity.Property(c => c.NombreCompleto).HasColumnName("nombre_completo");
                 entity.Property(c => c.Email).HasColumnName("email");
                 entity.Property(c => c.Telefono).HasColumnName("telefono");
-                entity.Property(c => c.FechaRegistro).HasColumnName("fecha_registro");
+                entity.Property(c => c.FechaRegistro).HasColumnName("fecha_registro").HasColumnType("timestamp without time zone");
                 entity.Property(c => c.IdUsuario).HasColumnName("id_usuario");
                 entity.Property(c => c.IdEstadoProspecto).HasColumnName("id_estado_prospecto");
 
@@ -132,13 +132,13 @@ namespace InmobiliariaAPI.Data
                 entity.Property(p => p.Banos).HasColumnName("banos");
                 entity.Property(p => p.SuperficieM2).HasColumnName("superficie_m2");
                 entity.Property(p => p.Estado).HasColumnName("estado");
-                entity.Property(p => p.FechaPublicacion).HasColumnName("fecha_publicacion");
+                entity.Property(p => p.FechaPublicacion).HasColumnName("fecha_publicacion").HasColumnType("timestamp without time zone");
                 entity.Property(p => p.IdAgente).HasColumnName("id_agente");
 
                 entity.Property(p => p.TipoOperacion).HasColumnName("tipo_operacion");
                 entity.Property(p => p.ComisionEmpresaPorcentaje).HasColumnName("comision_empresa_porcentaje");
                 entity.Property(p => p.ComisionAgentePorcentaje).HasColumnName("comision_agente_porcentaje");
-                entity.Property(p => p.FechaCierre).HasColumnName("fecha_cierre");
+                entity.Property(p => p.FechaCierre).HasColumnName("fecha_cierre").HasColumnType("date");
 
                 entity.HasOne(p => p.Agente)
                     .WithMany(u => u.Propiedades)
@@ -174,8 +174,8 @@ namespace InmobiliariaAPI.Data
                 entity.HasKey(d => d.Id);
                 entity.Property(d => d.Id).HasColumnName("id_disponibilidad");
                 entity.Property(d => d.DiaSemana).HasColumnName("dia_semana");
-                entity.Property(d => d.HoraInicio).HasColumnName("hora_inicio");
-                entity.Property(d => d.HoraFin).HasColumnName("hora_fin");
+                entity.Property(d => d.HoraInicio).HasColumnName("hora_inicio").HasColumnType("time");
+                entity.Property(d => d.HoraFin).HasColumnName("hora_fin").HasColumnType("time");
                 entity.Property(d => d.Activo).HasColumnName("activo");
                 entity.Property(d => d.IdAgente).HasColumnName("id_agente");
 

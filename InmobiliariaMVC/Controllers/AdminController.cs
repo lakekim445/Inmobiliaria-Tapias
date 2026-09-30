@@ -183,6 +183,7 @@ namespace InmobiliariaMVC.Controllers
             {
                 Id = propiedad.Id,
                 Tipo = propiedad.Tipo,
+                TipoOperacion = propiedad.TipoOperacion ?? "Venta",
                 Precio = propiedad.Precio,
                 Moneda = propiedad.Moneda,
                 Zona = propiedad.Zona,
@@ -210,6 +211,7 @@ namespace InmobiliariaMVC.Controllers
                 new
                 {
                     Tipo = model.Tipo,
+                    TipoOperacion = model.TipoOperacion,
                     Precio = model.Precio,
                     Moneda = model.Moneda,
                     Zona = model.Zona,

@@ -9,6 +9,8 @@ namespace InmobiliariaMVC.Models
         [Required(ErrorMessage = "El tipo es obligatorio")]
         public string Tipo { get; set; } = string.Empty;
 
+        public string TipoOperacion { get; set; } = "Venta";
+
         [Required(ErrorMessage = "El precio es obligatorio")]
         [Range(0.01, 9999999)]
         public decimal Precio { get; set; }

@@ -85,6 +85,7 @@ namespace InmobiliariaMVC.Controllers
 
             var content = new MultipartFormDataContent();
             content.Add(new StringContent(model.Tipo ?? ""), "Tipo");
+            content.Add(new StringContent(model.TipoOperacion ?? "Venta"), "TipoOperacion");
             content.Add(new StringContent(model.Precio.ToString()), "Precio");
             content.Add(new StringContent(model.Moneda ?? "USD"), "Moneda");
             content.Add(new StringContent(model.Zona ?? ""), "Zona");
@@ -141,6 +142,7 @@ namespace InmobiliariaMVC.Controllers
             {
                 Id = propiedad.Id,
                 Tipo = propiedad.Tipo,
+                TipoOperacion = propiedad.TipoOperacion ?? "Venta",
                 Precio = propiedad.Precio,
                 Moneda = propiedad.Moneda,
                 Zona = propiedad.Zona,
@@ -172,6 +174,7 @@ namespace InmobiliariaMVC.Controllers
                 new
                 {
                     Tipo = model.Tipo,
+                    TipoOperacion = model.TipoOperacion,
                     Precio = model.Precio,
                     Moneda = model.Moneda,
                     Zona = model.Zona,
